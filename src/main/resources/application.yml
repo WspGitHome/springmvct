@@ -1,0 +1,24 @@
+server:
+  port: 18088
+spring:
+  main:
+    allow-circular-references: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://123.57.192.38:3306/datax_web?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root123
+    dbcp2:
+      min-idle: 5
+      initial-size: 5
+      max-total: 5
+      max-wait-millis: 500
+mybatis-plus:
+  type-aliases-package: com.w.t.entity
+  configuration:
+    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+
+
