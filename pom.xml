@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <java-version>1.8</java-version>
+        <java-version>11</java-version>
         <springboot-web>2.6.6</springboot-web>
         <mybatis.plus.version>3.5.1</mybatis.plus.version>
         <maven-compiler-plugin>3.8.0</maven-compiler-plugin>
@@ -22,6 +22,26 @@
 
     <dependencies>
 
+
+        <!--conductor-client-->
+        <!-- https://mvnrepository.com/artifact/com.netflix.conductor/conductor-client -->
+<!--        <dependency>
+            <groupId>com.netflix.conductor</groupId>
+            <artifactId>conductor-client</artifactId>
+            <version>3.13.8</version>
+        </dependency>-->
+
+
+        <!-- https://mvnrepository.com/artifact/com.netflix.conductor/conductor-java-sdk -->
+        <dependency>
+            <groupId>com.netflix.conductor</groupId>
+            <artifactId>conductor-java-sdk</artifactId>
+            <version>3.13.8</version>
+        </dependency>
+
+
+
+        <!--base-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
@@ -79,7 +99,12 @@
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
             </exclusions>
+
         </dependency>
 
         <dependency>
@@ -97,9 +122,29 @@
                     <groupId>org.springframework.boot</groupId>
                 </exclusion>
                 <exclusion>
+                    <artifactId>jackson-core</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-datatype-jsr310</artifactId>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-module-parameter-names</artifactId>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-datatype-jdk8</artifactId>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                </exclusion>
+                <exclusion>
                     <artifactId>jackson-databind</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
                 </exclusion>
+                <!--                <exclusion>
+                                    <artifactId>jackson-databind</artifactId>
+                                    <groupId>com.fasterxml.jackson.core</groupId>
+                                </exclusion>-->
             </exclusions>
             <version>${springboot-web}</version>
         </dependency>
