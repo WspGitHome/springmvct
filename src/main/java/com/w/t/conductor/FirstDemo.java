@@ -12,6 +12,7 @@ import com.netflix.conductor.sdk.workflow.executor.WorkflowExecutor;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -43,10 +44,10 @@ public class FirstDemo {
 
         //http1
         String referName = "httprun" + System.currentTimeMillis();
-        String body ="taskId="+ConductorWorkflow.input.get("extract_task_id");
-        Map<String,Object> httpRunHeader = new HashMap<>();
-        httpRunHeader.put("Authorization",ConductorWorkflow.input.get("authotization"));
-        httpRunHeader.put("Cookie",ConductorWorkflow.input.get("cookies"));
+        String body = "taskId=" + ConductorWorkflow.input.get("extract_task_id");
+        Map<String, Object> httpRunHeader = new HashMap<>();
+        httpRunHeader.put("Authorization", ConductorWorkflow.input.get("authotization"));
+        httpRunHeader.put("Cookie", ConductorWorkflow.input.get("cookies"));
 
         Http.Input input = new Http.Input();
         input.setContentType("application/x-www-form-urlencoded");
@@ -64,9 +65,9 @@ public class FirstDemo {
         final JQ jq2 = new JQ("jq_02", ".jq_result | .code").input("jq_result", JSONUtil.parseObj(httprun.taskOutput.map("response")).get("body"));
 
         //http2
-        String referName2 ="http_get_status_"+System.currentTimeMillis();
+        String referName2 = "http_get_status_" + System.currentTimeMillis();
         Http http_get_status = new Http(referName2);
-        String body2 = "taskId="+httprun.taskOutput.map("response").map("body").get("code")+"&msg="+httprun.taskOutput.map("response").map("body").get("message");
+        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + httprun.taskOutput.map("response").map("body").get("message");
         Http.Input input2 = new Http.Input();
         input2.setContentType("application/x-www-form-urlencoded");
         input2.setConnectionTimeOut(5000);
@@ -89,7 +90,7 @@ public class FirstDemo {
 
 
         //http3
-        String referName3 ="http_get_"+System.currentTimeMillis();
+        String referName3 = "http_get_" + System.currentTimeMillis();
         Http httpget = new Http(referName3);
         Http.Input input3 = new Http.Input();
         input3.setConnectionTimeOut(5000);
@@ -105,7 +106,7 @@ public class FirstDemo {
                         .add(httprun)
                         .add(jq1)
                         .add(jq2)
-                        .add(new DoWhile("do_while01","$."+referName2+"['response']['body']['result'] === 1",new Wait("wait_01", Duration.ofSeconds(5)),http_get_status))
+                        .add(new DoWhile("do_while01", "$." + referName2 + "['response']['body']['result'] === 1", new Wait("wait_01", Duration.ofSeconds(5)), http_get_status))
                         .add(aSwitch)
                         .add(httpget)
                         .build();
@@ -113,6 +114,101 @@ public class FirstDemo {
         return conductorWorkflow;
     }
 
+
+    public ConductorWorkflow<Map<String, String>> createForkWorkflow() {
+
+        WorkflowBuilder<Map<String,String>> workBuilder = new WorkflowBuilder<>(executor);
+        //construct elements
+        //httpleft1
+        String referName1 = "httpleft1"+System.currentTimeMillis();
+        Http httpleft1 = new Http(referName1);
+        Http.Input input1 = new Http.Input();
+        input1.setConnectionTimeOut(5000);
+        input1.setReadTimeOut(5000);
+        input1.setUri("https://orkes-api-tester.orkesconductor.com/api");
+        input1.setMethod(Http.Input.HttpMethod.GET);
+        httpleft1.input(input1);
+
+
+        //httpMiddle
+        String referNmae2 = "httpmiddle"+System.currentTimeMillis();
+        Http httpmiddle = new Http(referNmae2);
+        String body2 = "taskId=b";
+        Http.Input input2 = new Http.Input();
+        input2.setContentType("application/x-www-form-urlencoded");
+        input2.setConnectionTimeOut(5000);
+        input2.setReadTimeOut(5000);
+        input2.setUri("http://123.57.192.38/gnfront/bury/getTaskStatus");
+        input2.setBody(body2);
+        input2.setMethod(Http.Input.HttpMethod.POST);
+        httpmiddle.input(input2);
+
+
+        //httpMiddle2
+        String referName2_1 = "httpmiddle2"+System.currentTimeMillis();
+        Http httpGet = new Http(referName2_1);
+        Http.Input input2_1 = new Http.Input();
+        input2_1.setConnectionTimeOut(5000);
+        input2_1.setReadTimeOut(5000);
+        input2_1.setUri("https://orkes-api-tester.orkesconductor.com/api");
+        input2_1.setMethod(Http.Input.HttpMethod.GET);
+        httpGet.input(input2_1);
+
+
+
+        //httpRight
+        String referNmae3 = "httpRight"+System.currentTimeMillis();
+        Http httpRight = new Http(referNmae3);
+        String body3 = "taskId=c";
+        Http.Input input3 = new Http.Input();
+        input3.setContentType("application/x-www-form-urlencoded");
+        input3.setConnectionTimeOut(5000);
+        input3.setReadTimeOut(5000);
+        input3.setUri("http://123.57.192.38/gnfront/bury/getTaskStatus");
+        input3.setBody(body3);
+        input3.setMethod(Http.Input.HttpMethod.POST);
+        httpRight.input(input3);
+
+
+        //line4
+        String referName4 = "httpline"+System.currentTimeMillis();
+        Http httpGet1 = new Http(referName4);
+        Http.Input input4 = new Http.Input();
+        input4.setConnectionTimeOut(5000);
+        input4.setReadTimeOut(5000);
+        input4.setUri("https://orkes-api-tester.orkesconductor.com/api");
+        input4.setMethod(Http.Input.HttpMethod.GET);
+        httpGet1.input(input4);
+
+        //line5
+        String referName5 = "httpline2"+System.currentTimeMillis();
+        Http httpGet2 = new Http(referName5);
+        Http.Input input5 = new Http.Input();
+        input5.setConnectionTimeOut(5000);
+        input5.setReadTimeOut(5000);
+        input5.setUri("https://orkes-api-tester.orkesconductor.com/api");
+        input5.setMethod(Http.Input.HttpMethod.GET);
+        httpGet2.input(input5);
+
+
+
+        final ConductorWorkflow<Map<String, String>> conductorWorkflow = workBuilder.name("api_for_test_fork").ownerEmail("user@example.com").version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("fork demo")//基本信息
+                .add(new ForkJoin("fork_01", new Task[]{httpleft1},new Task[]{new DoWhile("get_user_details","$." + referNmae2 + "['response']['body']['result'] === 1",httpmiddle),httpGet},new Task[]{httpRight}).joinOn(httpGet.getTaskReferenceName()))
+                .add(httpGet1).add(httpGet2).build();
+        conductorWorkflow.registerWorkflow(true,true);
+        return conductorWorkflow;
+    }
+
+
+    public static String getGenerateName(){
+        final long currentTimeMillis = System.currentTimeMillis();
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+      return   String.valueOf(currentTimeMillis);
+    }
 
     public static void main(String[] args) {
         testRun();
@@ -148,7 +244,6 @@ public class FirstDemo {
 */
 
 
-
     }
 
     private static void testRun() {
@@ -158,11 +253,12 @@ public class FirstDemo {
         WorkflowExecutor executor = new WorkflowExecutor(conductorServerURL);
         // Create the new shipment workflow
         FirstDemo firstDemo = new FirstDemo(executor);
-        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createTemplateWorkflow();
-        Map<String,String> runParamter = new HashMap<>();
-        runParamter.put("authotization","i am auth");
-        runParamter.put("cookies","i am cookies");
-        runParamter.put("extract_task_id","i am extract_task_id");
+//        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createTemplateWorkflow();
+        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createForkWorkflow();
+        Map<String, String> runParamter = new HashMap<>();
+        runParamter.put("authotization", "i am auth");
+        runParamter.put("cookies", "i am cookies");
+        runParamter.put("extract_task_id", "i am extract_task_id");
         final CompletableFuture<Workflow> executionFuture = templateWorkflow.execute(runParamter);//TODO带着运行参数立刻执行
 //        templateWorkflow.registerWorkflow(true);//TODO按名字重写一个任务流(更新)
 /*        try {
