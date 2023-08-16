@@ -12,9 +12,11 @@ import com.netflix.conductor.sdk.workflow.executor.WorkflowExecutor;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -42,13 +44,14 @@ public class FirstDemo {
     public ConductorWorkflow<Map<String, String>> createTemplateWorkflow() {
         WorkflowBuilder<Map<String, String>> workBuilder = new WorkflowBuilder<>(executor);
 
+
+
         //http1
         String referName = "httprun" + System.currentTimeMillis();
         String body = "taskId=" + ConductorWorkflow.input.get("extract_task_id");
         Map<String, Object> httpRunHeader = new HashMap<>();
         httpRunHeader.put("Authorization", ConductorWorkflow.input.get("authotization"));
         httpRunHeader.put("Cookie", ConductorWorkflow.input.get("cookies"));
-
         Http.Input input = new Http.Input();
         input.setContentType("application/x-www-form-urlencoded");
         input.setConnectionTimeOut(5000);
@@ -64,10 +67,21 @@ public class FirstDemo {
         final JQ jq1 = new JQ("jq_01", ".jq_result | .message").input("jq_result", JSONUtil.parseObj(httprun.taskOutput.map("response")).get("body"));
         final JQ jq2 = new JQ("jq_02", ".jq_result | .code").input("jq_result", JSONUtil.parseObj(httprun.taskOutput.map("response")).get("body"));
 
+        final SetVariable setVariable1 = new SetVariable("changeInputValue").input("cookies", "changedCookis");
+        final SetVariable setVariable2 = new SetVariable("changeInputValue2").input("cookies", "ssssssssssss");
+        SetVariable setVariable = new SetVariable("setValue0001");
+
+        setVariable.input("json",httprun.taskOutput.map("response").map("body").get("code"));
+
+
+
         //http2
         String referName2 = "http_get_status_" + System.currentTimeMillis();
         Http http_get_status = new Http(referName2);
-        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + httprun.taskOutput.map("response").map("body").get("message");
+//        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + httprun.taskOutput.map("response").map("body").get("message");
+//        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
+        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.getInput().get("json");
+
         Http.Input input2 = new Http.Input();
         input2.setContentType("application/x-www-form-urlencoded");
         input2.setConnectionTimeOut(5000);
@@ -89,6 +103,7 @@ public class FirstDemo {
                 .defaultCase(new ArrayList<>());
 
 
+
         //http3
         String referName3 = "http_get_" + System.currentTimeMillis();
         Http httpget = new Http(referName3);
@@ -96,20 +111,25 @@ public class FirstDemo {
         input3.setConnectionTimeOut(5000);
         input3.setReadTimeOut(5000);
         input3.setUri("https://orkes-api-tester.orkesconductor.com/api");
+        input3.setBody("a="+setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0));
         input3.setMethod(Http.Input.HttpMethod.GET);
         httpget.input(input3);
 
         final ConductorWorkflow<Map<String, String>> conductorWorkflow =
-                workBuilder.name("api_for_test_parallel_dowhile_v3")//任务流名称
+                workBuilder.name("getResult_"+System.currentTimeMillis())//任务流名称
                         .ownerEmail("user@example.com").version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("fisrt demo")//基本信息
 
                         .add(httprun)
                         .add(jq1)
                         .add(jq2)
+                        .add(setVariable1)
+                        .add(setVariable)
                         .add(new DoWhile("do_while01", "$." + referName2 + "['response']['body']['result'] === 1", new Wait("wait_01", Duration.ofSeconds(5)), http_get_status))
+                        .add(setVariable2)
                         .add(aSwitch)
                         .add(httpget)
                         .build();
+
         conductorWorkflow.registerWorkflow(true, true);
         return conductorWorkflow;
     }
@@ -247,29 +267,29 @@ public class FirstDemo {
     }
 
     private static void testRun() {
+
+        final ExecutorService executorService = Executors.newFixedThreadPool(20);
+
         String conductorServerURL =
                 "http://localhost:8080/api/";
 
         WorkflowExecutor executor = new WorkflowExecutor(conductorServerURL);
         // Create the new shipment workflow
         FirstDemo firstDemo = new FirstDemo(executor);
-//        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createTemplateWorkflow();
-        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createForkWorkflow();
+        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createTemplateWorkflow();
+//        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createForkWorkflow();
         Map<String, String> runParamter = new HashMap<>();
         runParamter.put("authotization", "i am auth");
         runParamter.put("cookies", "i am cookies");
         runParamter.put("extract_task_id", "i am extract_task_id");
         final CompletableFuture<Workflow> executionFuture = templateWorkflow.execute(runParamter);//TODO带着运行参数立刻执行
-//        templateWorkflow.registerWorkflow(true);//TODO按名字重写一个任务流(更新)
-/*        try {
-            Workflow run = executionFuture.get(10, TimeUnit.SECONDS);
+
+        try {
+            Thread.sleep(Long.parseLong("3000"));
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }*/
+        }
+
         executor.shutdown();
         System.out.println("已提交");
 
