@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,8 +42,6 @@ public class FirstDemo {
 
     public ConductorWorkflow<Map<String, String>> createTemplateWorkflow() {
         WorkflowBuilder<Map<String, String>> workBuilder = new WorkflowBuilder<>(executor);
-
-
 
         //http1
         String referName = "httprun" + System.currentTimeMillis();
@@ -133,6 +130,98 @@ public class FirstDemo {
         conductorWorkflow.registerWorkflow(true, true);
         return conductorWorkflow;
     }
+
+
+    public ConductorWorkflow<Map<String, String>> createDynamicSerialWorkFlow() {
+        WorkflowBuilder<Map<String, String>> workBuilder = new WorkflowBuilder<>(executor);
+        //http1
+        String referName = "httprun" + System.currentTimeMillis();
+        String body = "taskId=" + ConductorWorkflow.input.get("extract_task_id");
+        Map<String, Object> httpRunHeader = new HashMap<>();
+        httpRunHeader.put("Authorization", ConductorWorkflow.input.get("authotization"));
+        httpRunHeader.put("Cookie", ConductorWorkflow.input.get("cookies"));
+        Http.Input input = new Http.Input();
+        input.setContentType("application/x-www-form-urlencoded");
+        input.setConnectionTimeOut(5000);
+        input.setReadTimeOut(5000);
+        input.setUri("http://daas.smartsteps.com/dataextract/manager/taskrun");
+        input.setBody(body);
+        input.setMethod(Http.Input.HttpMethod.POST);
+        input.setHeaders(httpRunHeader);
+        Http httprun = new Http(referName).input(input);
+
+
+        //jq 后来发现这个东西可有可无
+        final JQ jq1 = new JQ("jq_01", ".jq_result | .message").input("jq_result", JSONUtil.parseObj(httprun.taskOutput.map("response")).get("body"));
+        final JQ jq2 = new JQ("jq_02", ".jq_result | .code").input("jq_result", JSONUtil.parseObj(httprun.taskOutput.map("response")).get("body"));
+
+        final SetVariable setVariable1 = new SetVariable("changeInputValue").input("cookies", "changedCookis");
+        final SetVariable setVariable2 = new SetVariable("changeInputValue2").input("cookies", "ssssssssssss");
+        SetVariable setVariable = new SetVariable("setValue0001");
+
+        setVariable.input("json",httprun.taskOutput.map("response").map("body").get("code"));
+
+
+
+        //http2
+        String referName2 = "http_get_status_" + System.currentTimeMillis();
+        Http http_get_status = new Http(referName2);
+//        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + httprun.taskOutput.map("response").map("body").get("message");
+//        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
+        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.getInput().get("json");
+
+        Http.Input input2 = new Http.Input();
+        input2.setContentType("application/x-www-form-urlencoded");
+        input2.setConnectionTimeOut(5000);
+        input2.setReadTimeOut(5000);
+        input2.setUri("http://123.57.192.38/gnfront/bury/getTaskStatus");
+        input2.setBody(body2);
+        input2.setMethod(Http.Input.HttpMethod.POST);
+        http_get_status.input(input2);
+
+
+        Terminate terminate = new Terminate("terminate_01", http_get_status.taskOutput.map("response").map("body").get("code"));
+        Terminate terminate2 = new Terminate("terminate_02", http_get_status.taskOutput.map("response").map("body").get("message"));
+
+        //switch
+        Switch aSwitch = new Switch("switch_001", http_get_status.taskOutput.map("response").map("body").get("result"))
+//                .switchCase("-1", new Terminate("terminate_01",http_get_status.taskOutput.map("response").map("body").get("message")))//读不到变量
+                .switchCase("-1", terminate)
+                .switchCase("faild", terminate2)
+                .defaultCase(new ArrayList<>());
+
+
+
+        //http3
+        String referName3 = "http_get_" + System.currentTimeMillis();
+        Http httpget = new Http(referName3);
+        Http.Input input3 = new Http.Input();
+        input3.setConnectionTimeOut(5000);
+        input3.setReadTimeOut(5000);
+        input3.setUri("https://orkes-api-tester.orkesconductor.com/api");
+        input3.setBody("a="+setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0));
+        input3.setMethod(Http.Input.HttpMethod.GET);
+        httpget.input(input3);
+
+        final ConductorWorkflow<Map<String, String>> conductorWorkflow =
+                workBuilder.name("getResult_"+System.currentTimeMillis())//任务流名称
+                        .ownerEmail("user@example.com").version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("fisrt demo")//基本信息
+
+                        .add(httprun)
+                        .add(jq1)
+                        .add(jq2)
+                        .add(setVariable1)
+                        .add(setVariable)
+                        .add(new DoWhile("do_while01", "$." + referName2 + "['response']['body']['result'] === 1", new Wait("wait_01", Duration.ofSeconds(5)), http_get_status))
+                        .add(setVariable2)
+                        .add(aSwitch)
+                        .add(httpget)
+                        .build();
+
+        conductorWorkflow.registerWorkflow(true, true);
+        return conductorWorkflow;
+    }
+
 
 
     public ConductorWorkflow<Map<String, String>> createForkWorkflow() {
@@ -227,7 +316,7 @@ public class FirstDemo {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-      return   String.valueOf(currentTimeMillis);
+      return  String.valueOf(currentTimeMillis);
     }
 
     public static void main(String[] args) {
@@ -271,9 +360,9 @@ public class FirstDemo {
         final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
         String conductorServerURL =
-                "http://localhost:8080/api/";
+                "http://172.16.0.73:8080/api/";
 
-        WorkflowExecutor executor = new WorkflowExecutor(conductorServerURL);
+        WorkflowExecutor executor = new WorkflowExecutor(conductorServerURL);//TODO 程序启动时全局构建该对象
         // Create the new shipment workflow
         FirstDemo firstDemo = new FirstDemo(executor);
         final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createTemplateWorkflow();
