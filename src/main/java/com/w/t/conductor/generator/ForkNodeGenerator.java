@@ -41,10 +41,42 @@ public class ForkNodeGenerator extends NodeGenerator {
             logicTaskList.add(new ForkJoin(getReferenceName("fork"), new Task[]{}));
         }
 
-        //TODO build fork obj by parallelTask
+        //build fork obj by parallelTask
+        final List<Integer> waitForIndex = nodeInfo.getWaitForIndex();
         final List<List<TaskInfo>> parallelTask = nodeInfo.getParallelTask();
+        List<List<Task>> taskList = new ArrayList<>();
+        List<String> waitReferenceNameList = new ArrayList<>();
+        for (int i = 0; i < parallelTask.size(); i++) {
+            List<Task> singleTask = new ArrayList<>();
+            List<TaskInfo> taskInfos = parallelTask.get(i);
+            List<LogicNode> logicNodes = transLogic(taskInfos);
+            logicNodes.stream().forEach(e -> {
+                singleTask.addAll(e.getNode());
+            });
+            taskList.add(singleTask);
+        }
 
-        logicTaskList.add(new ForkJoin(getReferenceName("fork"), new Task[]{}));
+        Task[][] forkedTasks = new Task[taskList.size()][];
+
+        for (int i = 0; i < taskList.size(); i++) {
+            int index = i;
+            List<Task> tasks = taskList.get(index);
+            forkedTasks[i] = new Task[tasks.size()]; // Initialize the second dimension
+            for (int j = 0; j < tasks.size(); j++) {
+                forkedTasks[i][j] = tasks.get(j);
+            }
+            waitForIndex.stream().forEach(e -> {
+                if (e == index) {
+                    waitReferenceNameList.add(tasks.get(tasks.size() - 1).getTaskReferenceName());
+                }
+            });
+        }
+        //get join refernce
+        ForkJoin forkJoin = new ForkJoin(getReferenceName("fork"), forkedTasks);
+        String[] joinReferenceArr = new String[]{};
+        forkJoin.joinOn(waitReferenceNameList.toArray(joinReferenceArr));
+
+        logicTaskList.add(forkJoin);
         return LogicNode.builder().node(logicTaskList).build();
     }
 

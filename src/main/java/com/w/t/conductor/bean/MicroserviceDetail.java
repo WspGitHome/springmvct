@@ -15,12 +15,12 @@ import lombok.Getter;
 public enum MicroserviceDetail {
 
     //数据集成服务-触发
-    DATA_EXTRACT_RUN("http://daas.smartsteps.com/dataextract/manager/taskrun", Http.Input.HttpMethod.POST, "*/*", "application/x-www-form-urlencoded", "taskId=${taskId}&runtype=0", 6000, 6000),
+    DATA_EXTRACT_RUN("http://daas.smartsteps.com/dataextract/manager/taskrun", Http.Input.HttpMethod.POST, "*/*", "application/x-www-form-urlencoded", "taskId=${taskId}&runtype=0", 60000, 60000),
     //数据集成服务-获取结果 -1 执行中， 0失败，1 执行成功
-    DATA_EXTRACT_GET_STATUS("http://123.57.192.38/gnfront/bury/getTaskStatus", Http.Input.HttpMethod.POST, "*/*", "application/x-www-form-urlencoded", "taskId=", 6000, 6000),
+    DATA_EXTRACT_GET_STATUS("http://123.57.192.38/gnfront/bury/getTaskStatus", Http.Input.HttpMethod.POST, "*/*", "application/x-www-form-urlencoded", "taskId=", 60000, 60000),
 
     //A触发服务
-    DATA_A_RUN("https://orkes-api-tester.orkesconductor.com/api", Http.Input.HttpMethod.GET, "*/*", null, null, 6000, 6000);
+    DATA_A_RUN("https://www.baidu.com/sugrec?&prod=pc_his&from=pc_web&json=1&sid=&hisdata=&_t=1695025460747&req=2&csor=0", Http.Input.HttpMethod.GET, "*/*", null, null, 60000, 60000);
 
     //TODO ....服务
 

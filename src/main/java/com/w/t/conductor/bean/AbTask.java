@@ -22,6 +22,7 @@ import java.util.Map;
 @SuperBuilder
 public class AbTask {
 
+    String id;//当前任务流中节点的唯一标识
 
     Map<String, Object> globalVariable;//全局变量
 

@@ -4,6 +4,7 @@ import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
 import com.netflix.conductor.common.run.Workflow;
 import com.netflix.conductor.sdk.workflow.def.ConductorWorkflow;
 import com.netflix.conductor.sdk.workflow.def.WorkflowBuilder;
+import com.netflix.conductor.sdk.workflow.def.tasks.Task;
 import com.netflix.conductor.sdk.workflow.executor.WorkflowExecutor;
 import com.w.t.conductor.bean.MicroserviceType;
 import com.w.t.conductor.bean.LogicNode;
@@ -12,7 +13,6 @@ import com.w.t.conductor.generator.DataANodeGenerator;
 import com.w.t.conductor.generator.DataExtractNodeGenerator;
 import com.w.t.conductor.generator.ForkNodeGenerator;
 import com.w.t.conductor.generator.NodeGenerator;
-import com.w.t.conductor.util.RandomCodeGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +42,91 @@ public class RunDynamicProcessor {
 
     public static void main(String[] args) throws Exception {
 
+//        serialRun();
+
+        parallelRun();
+
+    }
+
+    private static void parallelRun() throws Exception {
+
+        List<TaskInfo> all = new ArrayList<>();
+        TaskInfo data_a_01 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+
+        all.add(data_a_01);
+
+        TaskInfo parallelTasks = new TaskInfo();
+        parallelTasks.setType(2);
+        parallelTasks.setMircType(MicroserviceType.JOIN_TASK);
+        List<List<TaskInfo>> parallelTask = new ArrayList<>();
+
+        List<TaskInfo> taskInfos_1 = new ArrayList<>();
+        TaskInfo data_a_1_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        Map<String, Object> param_data_extract_1_1 = new HashMap<>();
+        param_data_extract_1_1.put("taskId", "1111");
+        TaskInfo data_extract_1_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_1_1).build();
+        taskInfos_1.add(data_a_1_1);
+        taskInfos_1.add(data_extract_1_1);
+
+
+        List<TaskInfo> taskInfos_2 = new ArrayList<>();
+        Map<String, Object> param_data_extract_2_1 = new HashMap<>();
+        param_data_extract_2_1.put("taskId", "2222");
+        TaskInfo data_extract_2_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_2_1).build();
+        taskInfos_2.add(data_extract_2_1);
+
+        List<TaskInfo> taskInfos_3 = new ArrayList<>();
+        TaskInfo data_a_3_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        Map<String, Object> param_data_extract_3_2 = new HashMap<>();
+        param_data_extract_3_2.put("taskId", "3333");
+        TaskInfo data_extract_3_2 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_3_2).build();
+        TaskInfo data_a_3_3 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        taskInfos_3.add(data_a_3_1);
+        taskInfos_3.add(data_extract_3_2);
+        taskInfos_3.add(data_a_3_3);
+
+        parallelTask.add(taskInfos_1);
+        parallelTask.add(taskInfos_2);
+        parallelTask.add(taskInfos_3);
+        parallelTasks.setParallelTask(parallelTask);
+        List<Integer> waitIndex = new ArrayList<>();
+        waitIndex.add(0);
+        waitIndex.add(2);
+        parallelTasks.setWaitForIndex(waitIndex);
+        all.add(parallelTasks);
+
+        Map<String, Object> param_data_extract_03_3_2 = new HashMap<>();
+        param_data_extract_03_3_2.put("taskId", "4444");
+        TaskInfo data_extract_03 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_03_3_2).build();
+        all.add(data_extract_03);
+
+        TaskInfo data_a_04 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        all.add(data_a_04);
+
+        final List<LogicNode> logicNodes = transLogic(all);
+        //构建任务流对象
+
+        String workflowId = null;
+        final long start = System.currentTimeMillis();
+        WorkflowExecutor executor = new WorkflowExecutor(conductorServerURL);//TODO 程序启动时全局构建该对象
+        try {
+            RunDynamicProcessor runDynamicProcessor = new RunDynamicProcessor(executor);
+            Map<String, String> runParamter = new HashMap<>();
+            final CompletableFuture<Workflow> execute = runDynamicProcessor.createCondutorFlow(logicNodes).execute(runParamter);
+            workflowId = execute.get().getWorkflowId();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
+
+
+        System.out.println("已提交并行任务，花费时间："+(System.currentTimeMillis()-start)+"当前生成的实例id:" + workflowId);
+        System.out.println(1);
+
+    }
+
+    private static void serialRun() throws Exception {
         //模拟页面或者二次处理后的参数
         List<TaskInfo> taskInfos = new ArrayList<>();
         Map<String, Object> param_data_extract_01 = new HashMap<>();
@@ -70,20 +155,18 @@ public class RunDynamicProcessor {
             Map<String, String> runParamter = new HashMap<>();
             final CompletableFuture<Workflow> execute = runDynamicProcessor.createCondutorFlow(logicNodes).execute(runParamter);
             workflowId = execute.get().getWorkflowId();
-        } catch (Exception e){
-          e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             executor.shutdown();
         }
 
-        System.out.println("已提交，当前生成的实例id:" + workflowId);
-
-
+        System.out.println("已提交串行任务，当前生成的实例id:" + workflowId);
     }
 
     private ConductorWorkflow<Map<String, String>> createCondutorFlow(List<LogicNode> logicNodes) {
         WorkflowBuilder<Map<String, String>> workBuilder = new WorkflowBuilder<>(executor);
-        workBuilder.name(" work_flow_name_" + RandomCodeGenerator.getRandomWithTimstamp()).ownerEmail("Daas@Smartstemp.com")
+        workBuilder.name(" work_flow_name").ownerEmail("Daas@Smartstemp.com")
                 .version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("desc");//base info
         for (LogicNode logicNode : logicNodes) {
             //串行

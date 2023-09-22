@@ -35,41 +35,6 @@ public enum MicroserviceType {
 
     public static void main(String[] args) {
 
-        List<List<List<String>>> line = new ArrayList<>();
-
-        List<List<String>>  line_a_1 = new ArrayList<>();
-        List<String> line_a_1_1 = new ArrayList<>();
-        line_a_1_1.add("A");
-
-        List<List<String>>  line_a_2 = new ArrayList<>();
-        List<String> line_a_2_1 = new ArrayList<>();
-        line_a_2_1.add("B");
-
-        List<List<String>>  line_a_3 = new ArrayList<>();
-        List<String> line_b_1 = new ArrayList<>();
-        List<String> line_b_2 = new ArrayList<>();
-        List<String> line_b_3 = new ArrayList<>();
-
-        line_b_1.add("B");
-        line_b_1.add("C");
-
-        line_b_2.add("A");
-        line_b_2.add("C");
-        line_b_2.add("B");
-
-        line_b_3.add("B");
-
-        line_a_3.add(line_b_1);
-        line_a_3.add(line_b_2);
-        line_a_3.add(line_b_3);
-
-        List<List<String>>  line_a_4 = new ArrayList<>();
-        List<List<String>>  line_a_5 = new ArrayList<>();
-
-
-
-
-
     }
 
 }

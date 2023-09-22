@@ -4,6 +4,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.netflix.conductor.sdk.workflow.def.tasks.*;
 import com.w.t.conductor.bean.HttpInfo;
 import com.w.t.conductor.bean.LogicNode;
+import com.w.t.conductor.bean.MicroserviceType;
 import com.w.t.conductor.bean.TaskInfo;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
@@ -15,6 +16,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -128,7 +130,26 @@ public abstract class NodeGenerator {
         return result;
     }
 
-    public static void main(String[] args) throws Exception {
+    public List<LogicNode> transLogic(List<TaskInfo> taskInfos) throws Exception {
+        List<LogicNode> logicNodes = new ArrayList<>();
+        for (TaskInfo taskInfo : taskInfos) {
+            final LogicNode logicNode = nodeFactory(taskInfo).getLogicNode();
+            logicNodes.add(logicNode);
+        }
+        return logicNodes;
+    }
 
+    public NodeGenerator nodeFactory(TaskInfo taskInfo) {
+        final MicroserviceType mircType = taskInfo.getMircType();
+        if (MicroserviceType.DATA_EXTRACT.equals(mircType)) {
+            return new DataExtractNodeGenerator(taskInfo);
+        }
+        if (MicroserviceType.DATA_A.equals(mircType)) {
+            return new DataANodeGenerator(taskInfo);
+        }
+        if (MicroserviceType.JOIN_TASK.equals(mircType)) {
+            return new ForkNodeGenerator(taskInfo);
+        }
+        throw new RuntimeException("节点未开放！");
     }
 }
