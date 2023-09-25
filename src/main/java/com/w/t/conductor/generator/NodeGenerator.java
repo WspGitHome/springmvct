@@ -17,6 +17,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public abstract class NodeGenerator {
     public Http getHttpNode(HttpInfo httpInfo) {
         Http.Input input = new Http.Input();
         input.setUri(httpInfo.getUrl());
-        if (httpInfo.getHeaders()!=null && !httpInfo.getHeaders().isEmpty()) {
+        if (httpInfo.getHeaders() != null && !httpInfo.getHeaders().isEmpty()) {
             input.setHeaders(httpInfo.getHeaders());
         }
         input.setBody(httpInfo.getBody());
@@ -68,6 +69,15 @@ public abstract class NodeGenerator {
 
     //设置变量节点
     public SetVariable getSetVariableNode(Map<String, String> keyValue) {
+        SetVariable setVariableObj = new SetVariable(getReferenceName("setValue"));
+        keyValue.entrySet().forEach(e -> {
+            setVariableObj.input(e.getKey(), e.getValue());
+        });
+        return setVariableObj;
+    }
+
+    public SetVariable getSetVariableNode() {
+        Map<String, String> keyValue = new HashMap<>();
         SetVariable setVariableObj = new SetVariable(getReferenceName("setValue"));
         keyValue.entrySet().forEach(e -> {
             setVariableObj.input(e.getKey(), e.getValue());
@@ -96,6 +106,19 @@ public abstract class NodeGenerator {
         return aSwitch;
     }
 
+
+    //Switch节点
+    public Switch getSwitchNodeB(String conditionObj, Map<String, List<Task>> caseObj, List<Task<?>> defaultObj) {
+        final Switch aSwitch = new Switch(getReferenceName("switch"), conditionObj);
+        caseObj.entrySet().stream().forEach(e -> {
+            Task[] tasks =  e.getValue().toArray(Task[]::new);
+            aSwitch.switchCase(e.getKey(), tasks);
+        });
+        if (defaultObj != null) {
+            aSwitch.defaultCase(defaultObj);
+        }
+        return aSwitch;
+    }
 
     //doWhile节点
     //$." + referName2 + "['response']['body']['result'] === value
@@ -151,5 +174,19 @@ public abstract class NodeGenerator {
             return new ForkNodeGenerator(taskInfo);
         }
         throw new RuntimeException("节点未开放！");
+    }
+
+
+    public static void main(String[] args) {
+        List<String> a= new ArrayList<>();
+        a.add("2");
+        a.add("3");
+        a.add("4");
+
+        String[] as = new String[]{};
+
+        a.toArray(as);
+        System.out.println(1);
+
     }
 }
