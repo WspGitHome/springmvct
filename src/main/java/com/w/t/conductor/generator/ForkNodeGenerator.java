@@ -39,6 +39,7 @@ public class ForkNodeGenerator extends NodeGenerator {
         List<Task> logicTaskList = new ArrayList<>();
         if (nodeInfo.getType() != 2) {
             logicTaskList.add(new ForkJoin(getReferenceName("fork"), new Task[]{}));
+            return LogicNode.builder().node(logicTaskList).build();
         }
 
         //build fork obj by parallelTask

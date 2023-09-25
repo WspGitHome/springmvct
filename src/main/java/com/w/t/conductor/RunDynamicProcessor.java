@@ -62,11 +62,40 @@ public class RunDynamicProcessor {
 
         List<TaskInfo> taskInfos_1 = new ArrayList<>();
         TaskInfo data_a_1_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_neibu_0111 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+
         Map<String, Object> param_data_extract_1_1 = new HashMap<>();
         param_data_extract_1_1.put("taskId", "1111");
         TaskInfo data_extract_1_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_1_1).build();
         taskInfos_1.add(data_a_1_1);
         taskInfos_1.add(data_extract_1_1);
+        //构建一个新的
+        TaskInfo parallelTasks_02 = new TaskInfo();
+        parallelTasks_02.setType(2);
+        parallelTasks_02.setMircType(MicroserviceType.JOIN_TASK);
+        List<List<TaskInfo>> parallelTask_neibu = new ArrayList<>();
+        List<TaskInfo> taskInfos_neibu_1 = new ArrayList<>();
+        TaskInfo data_a_neibu_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        taskInfos_neibu_1.add(data_a_neibu_1);
+
+        List<TaskInfo> taskInfos_neibu_2 = new ArrayList<>();
+        Map<String, Object> param_data_neibu_extract_1_1 = new HashMap<>();
+        param_data_neibu_extract_1_1.put("taskId", "neibu1111");
+        TaskInfo data_neibu_extract_1_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_neibu_extract_1_1).build();
+        taskInfos_neibu_2.add(data_neibu_extract_1_1);
+
+        List<TaskInfo> taskInfos_neibu_3 = new ArrayList<>();
+        TaskInfo data_a_neibu_3 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        taskInfos_neibu_3.add(data_a_neibu_3);
+
+        parallelTask_neibu.add(taskInfos_neibu_1);
+        parallelTask_neibu.add(taskInfos_neibu_2);
+        parallelTask_neibu.add(taskInfos_neibu_3);
+
+        parallelTasks_02.setParallelTask(parallelTask_neibu);
+        taskInfos_1.add(parallelTasks_02);
+        taskInfos_1.add(data_neibu_0111);
+
 
 
         List<TaskInfo> taskInfos_2 = new ArrayList<>();
@@ -91,7 +120,7 @@ public class RunDynamicProcessor {
         parallelTasks.setParallelTask(parallelTask);
         List<Integer> waitIndex = new ArrayList<>();
         waitIndex.add(0);
-        waitIndex.add(2);
+        waitIndex.add(1);
         parallelTasks.setWaitForIndex(waitIndex);
         all.add(parallelTasks);
 
@@ -121,7 +150,7 @@ public class RunDynamicProcessor {
         }
 
 
-        System.out.println("已提交并行任务，花费时间："+(System.currentTimeMillis()-start)+"当前生成的实例id:" + workflowId);
+        System.out.println("已提交并行任务，花费时间：" + (System.currentTimeMillis() - start) + "当前生成的实例id:" + workflowId);
         System.out.println(1);
 
     }
@@ -169,12 +198,9 @@ public class RunDynamicProcessor {
         workBuilder.name(" work_flow_name").ownerEmail("Daas@Smartstemp.com")
                 .version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("desc");//base info
         for (LogicNode logicNode : logicNodes) {
-            //串行
-            if (logicNode.getType() == 1) {
-                logicNode.getNode().stream().forEach(e -> {
-                    workBuilder.add(e);
-                });
-            }
+            logicNode.getNode().stream().forEach(e -> {
+                workBuilder.add(e);
+            });
         }
         final ConductorWorkflow<Map<String, String>> conductorWorkflow = workBuilder.build();
         conductorWorkflow.registerWorkflow(true, true);

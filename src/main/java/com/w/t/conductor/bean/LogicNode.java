@@ -23,11 +23,9 @@ import java.util.List;
 public class LogicNode {
 
     @Builder.Default
-    private Integer type = 1;//1 普通节点，2 并行节点
+    private Integer type = 1;//1 普通节点，2 并行节点 ,3 条件节点
 
     private List<List<LogicNode>> parallelNode;
-
-    private ForkJoin forkJoin; //包含一系列横纵交错的List<Task>
 
     private List<Task> node; //逻辑节点
 }
