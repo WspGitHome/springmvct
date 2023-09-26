@@ -39,8 +39,8 @@ public abstract class NodeGenerator {
 
     /**
      * 单逻辑节点只能为串行
-     * 逻辑节点最终排列流程图需要 List<List<LogicNode>> 决定串并行，LogicNode内有个List<Task>
-     * 页面给的应该是List<TaskInfo>
+     * 逻辑节点最终排列流程图需要 List<List<LogicNode>> 决定串并行，LogicNode内有List<Task>
+     * 页面或者调用逻辑给的应该是List<TaskInfo>
      *
      * @return
      */
@@ -111,7 +111,7 @@ public abstract class NodeGenerator {
     public Switch getSwitchNodeB(String conditionObj, Map<String, List<Task>> caseObj, List<Task<?>> defaultObj) {
         final Switch aSwitch = new Switch(getReferenceName("switch"), conditionObj);
         caseObj.entrySet().stream().forEach(e -> {
-            Task[] tasks =  e.getValue().toArray(Task[]::new);
+            Task[] tasks = e.getValue().toArray(Task[]::new);
             aSwitch.switchCase(e.getKey(), tasks);
         });
         if (defaultObj != null) {
@@ -173,12 +173,15 @@ public abstract class NodeGenerator {
         if (MicroserviceType.JOIN_TASK.equals(mircType)) {
             return new ForkNodeGenerator(taskInfo);
         }
+        if (MicroserviceType.CONDITION_TASK.equals(mircType)) {
+            return new ConditionNodeGenerator(taskInfo);
+        }
         throw new RuntimeException("节点未开放！");
     }
 
 
     public static void main(String[] args) {
-        List<String> a= new ArrayList<>();
+        List<String> a = new ArrayList<>();
         a.add("2");
         a.add("3");
         a.add("4");

@@ -14,7 +14,9 @@ import java.util.List;
  */
 public enum MicroserviceType {
 
-    JOIN_TASK("join_task", 0, "并行任务标识"),
+    JOIN_TASK("join_task", 1001, "并行任务标识"),
+    CONDITION_TASK("condition_task", 100, "条件判断任务标识"),
+
     DATA_EXTRACT("data_extract", 1, "数据集成类型任务"),
     DATA_A("data_a", 2, "简单触发接口类型任务");
 

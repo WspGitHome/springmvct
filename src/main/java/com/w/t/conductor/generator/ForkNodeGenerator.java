@@ -3,10 +3,7 @@ package com.w.t.conductor.generator;
 import com.netflix.conductor.sdk.workflow.def.tasks.ForkJoin;
 import com.netflix.conductor.sdk.workflow.def.tasks.Http;
 import com.netflix.conductor.sdk.workflow.def.tasks.Task;
-import com.w.t.conductor.bean.HttpInfo;
-import com.w.t.conductor.bean.LogicNode;
-import com.w.t.conductor.bean.MicroserviceDetail;
-import com.w.t.conductor.bean.TaskInfo;
+import com.w.t.conductor.bean.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +34,7 @@ public class ForkNodeGenerator extends NodeGenerator {
     public LogicNode getLogicNode() throws Exception {
 
         List<Task> logicTaskList = new ArrayList<>();
-        if (nodeInfo.getType() != 2) {
+        if (!nodeInfo.getMircType().equals(MicroserviceType.JOIN_TASK)) {
             logicTaskList.add(new ForkJoin(getReferenceName("fork"), new Task[]{}));
             return LogicNode.builder().node(logicTaskList).build();
         }
