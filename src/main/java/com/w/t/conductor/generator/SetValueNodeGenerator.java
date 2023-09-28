@@ -3,7 +3,9 @@ package com.w.t.conductor.generator;
 import com.netflix.conductor.sdk.workflow.def.tasks.SetVariable;
 import com.netflix.conductor.sdk.workflow.def.tasks.Task;
 import com.w.t.conductor.bean.LogicNode;
+import com.w.t.conductor.bean.MicroserviceType;
 import com.w.t.conductor.bean.TaskInfo;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +34,19 @@ public class SetValueNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
-        List<Task> logicTaskList = new ArrayList<>();
-        final Map<String, Object> globalVariable = nodeInfo.getGlobalVariable();
-        SetVariable setVariableNode = getSetVariableNode(globalVariable.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))));
-        logicTaskList.add(setVariableNode);
-        return LogicNode.builder().node(logicTaskList).build();
+        changeValue(nodeInfo);
+        return LogicNode.builder().build();
+    }
+
+    private void changeValue(TaskInfo taskInfo) {
+        //全部变量
+        final Map<String, Object> globalVariable = taskInfo.getGlobalVariable();
+        //改变值相关信息
+        final Map<String, Object> variableObj = taskInfo.getVariableObj();
+        //动态相关节点
+        //TODO 如何放入并获取 ????
+        final Map<String, Task> currentFlowNodeId2RefernceTask = taskInfo.getCurrentFlowNodeId2RefernceTask();
+
     }
 
 }

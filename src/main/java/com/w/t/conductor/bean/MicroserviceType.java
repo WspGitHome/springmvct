@@ -17,7 +17,8 @@ public enum MicroserviceType {
     //系统节点
     JOIN_NODE("join_node", 1001, "并行节点标识"),
     CONDITION_NODE("condition_node", 100, "条件判断节点标识"),
-    SET_VARIABLE_NODE("set_variable_node", 200, "设置变量节点标识"),
+    INIT_VARIABLE_NODE("init_variable_node", 200, "初始化变量节点标识"),
+    SET_VARIABLE_NODE("set_variable_node", 2001, "设置变量值节点标识"),
 
 
     //功能节点

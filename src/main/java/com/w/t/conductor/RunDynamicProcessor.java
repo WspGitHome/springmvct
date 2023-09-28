@@ -469,9 +469,12 @@ public class RunDynamicProcessor {
         workBuilder.name("work_flow_name").ownerEmail("Daas@Smartstemp.com")
                 .version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("desc");//base info
         for (LogicNode logicNode : logicNodes) {
-            logicNode.getNode().stream().forEach(e -> {
-                workBuilder.add(e);
-            });
+            //TODO notic：
+            if(logicNode.getNode()!=null && !logicNode.getNode().isEmpty()){
+                logicNode.getNode().stream().forEach(e -> {
+                    workBuilder.add(e);
+                });
+            }
         }
         final ConductorWorkflow<Map<String, String>> conductorWorkflow = workBuilder.build();
         conductorWorkflow.registerWorkflow(true, true);

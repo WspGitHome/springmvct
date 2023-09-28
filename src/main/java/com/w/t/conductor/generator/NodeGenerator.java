@@ -179,6 +179,12 @@ public abstract class NodeGenerator {
         if (MicroserviceType.CONDITION_NODE.equals(mircType)) {
             return new ConditionNodeGenerator(taskInfo);
         }
+        if (MicroserviceType.INIT_VARIABLE_NODE.equals(mircType)) {
+            return new InitGlobalValueNodeGenerator(taskInfo);
+        }
+        if (MicroserviceType.SET_VARIABLE_NODE.equals(mircType)) {
+            return new SetValueNodeGenerator(taskInfo);
+        }
         throw new RuntimeException("节点未开放！");
     }
 

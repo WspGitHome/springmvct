@@ -32,23 +32,25 @@ public class TaskInfo extends AbTask {
 
 
     //并行节点
-    private List<List<TaskInfo>> parallelTask; //type = 2 时 并行的任务集
+    private List<List<TaskInfo>> parallelTask; //并行的任务集
 
-    private List<Integer> waitForIndex = new ArrayList<>();//type = 2 时候，用于并行节点后面的节点是否需要等待前方的并行节点
+    private List<Integer> waitForIndex = new ArrayList<>();//用于并行节点后面的节点是否需要等待前方的并行节点
 
 
     //条件判断节点
-    private Map<String, Object> conditionObj;//type = 3 时用  key： globalKey|conditionExpression|conditionValue
+    private Map<String, Object> conditionObj;// key： globalKey|conditionExpression|conditionValue
 
-    private List<TaskInfo> ifTaskInfos;//type = 3
+    private List<TaskInfo> ifTaskInfos;
 
-    private List<TaskInfo> elseTaskInfos;//type = 3
+    private List<TaskInfo> elseTaskInfos;
 
     //初始化全局变量节点
     Map<String, Object> globalVariable;//全局变量传递～
 
     //赋值节点
     Map<String,Task> currentFlowNodeId2RefernceTask;
+    private Map<String, Object> variableObj;//type = 3 时用  key： globalKey|variableValue
+
 
     Integer faildTerminate = 1;//其他参数如对节点设置失败终止或者忽略,0忽略，1终止
 
