@@ -1,6 +1,5 @@
 package com.w.t.conductor;
 
-import cn.hutool.json.JSONUtil;
 import com.netflix.conductor.common.metadata.workflow.WorkflowDef;
 import com.netflix.conductor.common.run.Workflow;
 import com.netflix.conductor.sdk.workflow.def.ConductorWorkflow;
@@ -43,10 +42,170 @@ public class RunDynamicProcessor {
 
 //        serialRun();
 //        parallelRun();
-//        testRun();//测试waitforjoin
-        serialConditonRun();
+        testRun();//测试waitforjoin
+//        serialConditonRun();
+//        parallelConditionRun();
 
     }
+
+    private static void parallelConditionRun() throws Exception {
+        List<TaskInfo> all = new ArrayList<>();
+
+        TaskInfo data_a_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_2 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_3 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_4 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_5 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_6 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_7 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_8 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_9 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_10 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+        TaskInfo data_a_11 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
+
+
+        Map<String, Object> param_data_extract_common = new HashMap<>();
+        param_data_extract_common.put("taskId", "9999");
+        TaskInfo data_extract_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_2 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_3 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_4 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_5 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_6 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_7 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_8 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_9 = TaskInfo.builder().mircType(MicroserviceType.DATA_EXTRACT).param(param_data_extract_common).build();
+
+
+        //ForkJoin build
+        TaskInfo forkTask = TaskInfo.builder().mircType(MicroserviceType.JOIN_NODE).build();
+        List<List<TaskInfo>> taskInfos1 = new ArrayList<>();
+        List<TaskInfo> list1 = new ArrayList<>();
+
+        Map<String, Object> conditionObj1 = new HashMap<>();
+        conditionObj1.put("globalKey", "p1");
+        conditionObj1.put("conditionExpression", ">=");
+        conditionObj1.put("conditionValue", "999");
+        TaskInfo conditon1 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_NODE).build();
+        List<TaskInfo> ifConditon1 = new ArrayList<>();
+        TaskInfo forkTask2 = TaskInfo.builder().mircType(MicroserviceType.JOIN_NODE).build();
+        List<List<TaskInfo>> taskInfos2 = new ArrayList<>();
+        List<TaskInfo> taskInfos2_list1 = new ArrayList<>();
+        taskInfos2_list1.add(data_a_3);
+        taskInfos2_list1.add(data_extract_2);
+        List<TaskInfo> taskInfos2_list2 = new ArrayList<>();
+        taskInfos2_list2.add(data_extract_3);
+        List<TaskInfo> taskInfos2_list3 = new ArrayList<>();
+        taskInfos2_list3.add(data_a_4);
+        taskInfos2.add(taskInfos2_list1);
+        taskInfos2.add(taskInfos2_list2);
+        taskInfos2.add(taskInfos2_list3);
+        forkTask2.setParallelTask(taskInfos2);
+        List<Integer> waitIndex01 = new ArrayList<>();
+        waitIndex01.add(0);
+        waitIndex01.add(2);
+        forkTask2.setWaitForIndex(waitIndex01);
+        ifConditon1.add(data_extract_1);
+        ifConditon1.add(forkTask2);
+        ifConditon1.add(data_a_5);
+
+        List<TaskInfo> elseConditon1 = new ArrayList<>();
+        elseConditon1.add(data_a_6);
+
+        conditon1.setConditionObj(conditionObj1);
+        conditon1.setIfTaskInfos(ifConditon1);
+        conditon1.setElseTaskInfos(elseConditon1);
+
+        list1.add(data_a_2);
+        list1.add(conditon1);
+
+
+        List<TaskInfo> list2 = new ArrayList<>();
+        TaskInfo condition2 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_NODE).build();
+        Map<String, Object> conditionObj2 = new HashMap<>();
+        conditionObj2.put("globalKey", "p2");
+        conditionObj2.put("conditionExpression", "==");
+        conditionObj2.put("conditionValue", "999");
+        List<TaskInfo> ifConditon2 = new ArrayList<>();
+        ifConditon2.add(data_extract_5);
+        List<TaskInfo> elseConditon2 = new ArrayList<>();
+        elseConditon2.add(data_a_7);
+        condition2.setConditionObj(conditionObj2);
+        condition2.setIfTaskInfos(ifConditon2);
+        condition2.setElseTaskInfos(elseConditon2);
+        list2.add(data_extract_4);
+        list2.add(condition2);
+
+
+        List<TaskInfo> list3 = new ArrayList<>();
+        TaskInfo conditon3 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_NODE).build();
+        Map<String, Object> conditionObj3 = new HashMap<>();
+        conditionObj3.put("globalKey", "p3");
+        conditionObj3.put("conditionExpression", "==");
+        conditionObj3.put("conditionValue", "991");
+        conditon3.setConditionObj(conditionObj3);
+        List<TaskInfo> ifConditon3 = new ArrayList<>();
+        ifConditon3.add(data_a_9);
+        List<TaskInfo> elseConditon3 = new ArrayList<>();
+        elseConditon3.add(data_extract_7);
+        conditon3.setIfTaskInfos(ifConditon3);
+        conditon3.setElseTaskInfos(elseConditon3);
+        list3.add(data_a_8);
+        list3.add(data_extract_6);
+        list3.add(conditon3);
+
+        taskInfos1.add(list1);
+        taskInfos1.add(list2);
+        taskInfos1.add(list3);
+
+        forkTask.setParallelTask(taskInfos1);
+        List<Integer> waitforIndex = new ArrayList<>();
+        waitforIndex.add(0);
+        forkTask.setWaitForIndex(waitforIndex);
+
+
+        TaskInfo condition4 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_NODE).build();
+        Map<String, Object> conditionObj4 = new HashMap<>();
+        conditionObj4.put("globalKey", "p4");
+        conditionObj4.put("conditionExpression", ">");
+        conditionObj4.put("conditionValue", "999");
+        condition4.setConditionObj(conditionObj4);
+        List<TaskInfo> ifConditon4 = new ArrayList<>();
+        ifConditon4.add(data_extract_9);
+        ifConditon4.add(data_a_11);
+        List<TaskInfo> elseConditon4 = new ArrayList<>();
+        elseConditon4.add(data_a_10);
+        condition4.setIfTaskInfos(ifConditon4);
+        condition4.setElseTaskInfos(elseConditon4);
+
+
+        all.add(data_a_1);
+        all.add(forkTask);
+        all.add(data_extract_8);
+        all.add(condition4);
+
+        //build over
+        final List<LogicNode> logicNodes = transLogic(all);
+        //构建任务流对象
+
+        String workflowId = null;
+        WorkflowExecutor executor = new WorkflowExecutor(conductorServerURL);//TODO 程序启动时全局构建该对象
+        try {
+            RunDynamicProcessor runDynamicProcessor = new RunDynamicProcessor(executor);
+            Map<String, String> runParamter = new HashMap<>();
+            final CompletableFuture<Workflow> execute = runDynamicProcessor.createCondutorFlow(logicNodes).execute(runParamter);
+            workflowId = execute.get().getWorkflowId();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
+
+        System.out.println("已提交条件并行任务，当前生成的实例id:" + workflowId);
+        System.out.println(1);
+    }
+
+
 
     private static void serialConditonRun() {
         List<TaskInfo> all = new ArrayList<>();
@@ -77,7 +236,7 @@ public class RunDynamicProcessor {
         conditionObj3.put("globalKey", "p3");
         conditionObj3.put("conditionExpression", ">=");
         conditionObj3.put("conditionValue", "999");
-        TaskInfo conditon3 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_TASK)
+        TaskInfo conditon3 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_NODE)
                 .conditionObj(conditionObj3)
                 .ifTaskInfos(ifConditon3).elseTaskInfos(elseConditon3).build();
 
@@ -95,7 +254,7 @@ public class RunDynamicProcessor {
         conditionObj2.put("globalKey", "p2");
         conditionObj2.put("conditionExpression", "==");
         conditionObj2.put("conditionValue", "991");
-        TaskInfo conditon2 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_TASK)
+        TaskInfo conditon2 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_NODE)
                 .conditionObj(conditionObj2)
                 .ifTaskInfos(ifConditon2).elseTaskInfos(elseConditon2).build();
 
@@ -109,7 +268,7 @@ public class RunDynamicProcessor {
         conditionObj1.put("globalKey", "p1");
         conditionObj1.put("conditionExpression", "<=");
         conditionObj1.put("conditionValue", "999");
-        TaskInfo conditon1 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_TASK)
+        TaskInfo conditon1 = TaskInfo.builder().mircType(MicroserviceType.CONDITION_NODE)
                 .conditionObj(conditionObj1)
                 .ifTaskInfos(ifConditon1).elseTaskInfos(elseConditon1).build();
 
@@ -170,7 +329,7 @@ public class RunDynamicProcessor {
 
         TaskInfo parallelTasks = new TaskInfo();
 //        parallelTasks.setType(2);
-        parallelTasks.setMircType(MicroserviceType.JOIN_TASK);
+        parallelTasks.setMircType(MicroserviceType.JOIN_NODE);
         List<List<TaskInfo>> parallelTask = new ArrayList<>();
 
         List<TaskInfo> taskInfos_1 = new ArrayList<>();
@@ -185,7 +344,7 @@ public class RunDynamicProcessor {
         //构建一个新的
         TaskInfo parallelTasks_02 = new TaskInfo();
 //        parallelTasks_02.setType(2);
-        parallelTasks_02.setMircType(MicroserviceType.JOIN_TASK);
+        parallelTasks_02.setMircType(MicroserviceType.JOIN_NODE);
         List<List<TaskInfo>> parallelTask_neibu = new ArrayList<>();
         List<TaskInfo> taskInfos_neibu_1 = new ArrayList<>();
         TaskInfo data_a_neibu_1 = TaskInfo.builder().mircType(MicroserviceType.DATA_A).build();
@@ -372,7 +531,8 @@ public class RunDynamicProcessor {
         ForkJoin forkJoin = new ForkJoin("fork", forkedTasks);
 
 
-        forkJoin.joinOn("switch01", "0006");
+//        forkJoin.joinOn("switch01");
+        forkJoin.joinOn("0004");
 
         workBuilder.add(forkJoin);
 
@@ -399,10 +559,10 @@ public class RunDynamicProcessor {
         if (MicroserviceType.DATA_A.equals(mircType)) {
             return new DataANodeGenerator(taskInfo);
         }
-        if (MicroserviceType.JOIN_TASK.equals(mircType)) {
+        if (MicroserviceType.JOIN_NODE.equals(mircType)) {
             return new ForkNodeGenerator(taskInfo);
         }
-        if (MicroserviceType.CONDITION_TASK.equals(mircType)) {
+        if (MicroserviceType.CONDITION_NODE.equals(mircType)) {
             return new ConditionNodeGenerator(taskInfo);
         }
         throw new RuntimeException("节点未开放！");

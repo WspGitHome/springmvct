@@ -1,10 +1,8 @@
 package com.w.t.conductor.generator;
 
-import com.netflix.conductor.sdk.workflow.def.tasks.Http;
 import com.netflix.conductor.sdk.workflow.def.tasks.Task;
 import com.w.t.conductor.bean.*;
 
-import javax.xml.parsers.SAXParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +32,7 @@ public class ConditionNodeGenerator extends NodeGenerator {
     public LogicNode getLogicNode() throws Exception {
 
         List<Task> logicTaskList = new ArrayList<>();
-        if (!nodeInfo.getMircType().equals(MicroserviceType.CONDITION_TASK)) {
+        if (!nodeInfo.getMircType().equals(MicroserviceType.CONDITION_NODE)) {
             return LogicNode.builder().node(logicTaskList).build();
         }
         final List<TaskInfo> ifTaskInfos = nodeInfo.getIfTaskInfos();

@@ -34,6 +34,8 @@ import static com.w.t.conductor.util.RandomCodeGenerator.getRandomWithTimstamp;
 @AllArgsConstructor
 public abstract class NodeGenerator {
 
+    public static final String SET_VALUE_REFERENCE_ID = "globalValue";//每个任务流里唯一所以名字不需要随机，便于其他节点取赋值。
+    public static final String PRE_GLOBAL_VARIABLE = "pre_global_";//特殊标识taskReferenceName代表该几点可以用来获取值赋予全局变量
 
     public TaskInfo nodeInfo;
 
@@ -69,7 +71,7 @@ public abstract class NodeGenerator {
 
     //设置变量节点
     public SetVariable getSetVariableNode(Map<String, String> keyValue) {
-        SetVariable setVariableObj = new SetVariable(getReferenceName("setValue"));
+        SetVariable setVariableObj = new SetVariable(SET_VALUE_REFERENCE_ID);
         keyValue.entrySet().forEach(e -> {
             setVariableObj.input(e.getKey(), e.getValue());
         });
@@ -78,12 +80,13 @@ public abstract class NodeGenerator {
 
     public SetVariable getSetVariableNode() {
         Map<String, String> keyValue = new HashMap<>();
-        SetVariable setVariableObj = new SetVariable(getReferenceName("setValue"));
+        SetVariable setVariableObj = new SetVariable(SET_VALUE_REFERENCE_ID);
         keyValue.entrySet().forEach(e -> {
             setVariableObj.input(e.getKey(), e.getValue());
         });
         return setVariableObj;
     }
+
 
     //终止节点
     public Terminate getTerminate(String reason) {
@@ -170,13 +173,29 @@ public abstract class NodeGenerator {
         if (MicroserviceType.DATA_A.equals(mircType)) {
             return new DataANodeGenerator(taskInfo);
         }
-        if (MicroserviceType.JOIN_TASK.equals(mircType)) {
+        if (MicroserviceType.JOIN_NODE.equals(mircType)) {
             return new ForkNodeGenerator(taskInfo);
         }
-        if (MicroserviceType.CONDITION_TASK.equals(mircType)) {
+        if (MicroserviceType.CONDITION_NODE.equals(mircType)) {
             return new ConditionNodeGenerator(taskInfo);
         }
         throw new RuntimeException("节点未开放！");
+    }
+
+
+    //用于标识能够获取返回值 赋值全局变量的节点id(taskReferenceName)
+    public String getPreVariableFlag(String nodeTye) {
+        if (StringUtils.isEmpty(nodeTye)) {
+            return PRE_GLOBAL_VARIABLE+"fxjm_";
+        }
+        return PRE_GLOBAL_VARIABLE + nodeTye + "_";
+    }
+
+
+    enum SUPPORT_GLOBAL_VARIABLE{
+
+
+
     }
 
 

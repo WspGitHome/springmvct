@@ -68,8 +68,7 @@ public class FirstDemo {
         final SetVariable setVariable2 = new SetVariable("changeInputValue2").input("cookies", "ssssssssssss");
         SetVariable setVariable = new SetVariable("setValue0001");
 
-        setVariable.input("json",httprun.taskOutput.map("response").map("body").get("code"));
-
+        setVariable.input("json", httprun.taskOutput.map("response").map("body").get("code"));
 
 
         //http2
@@ -77,7 +76,7 @@ public class FirstDemo {
         Http http_get_status = new Http(referName2);
 //        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + httprun.taskOutput.map("response").map("body").get("message");
 //        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
-        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.getInput().get("json");
+        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + setVariable.getInput().get("json");
 
         Http.Input input2 = new Http.Input();
         input2.setContentType("application/x-www-form-urlencoded");
@@ -100,7 +99,6 @@ public class FirstDemo {
                 .defaultCase(new ArrayList<>());
 
 
-
         //http3
         String referName3 = "http_get_" + System.currentTimeMillis();
         Http httpget = new Http(referName3);
@@ -108,12 +106,12 @@ public class FirstDemo {
         input3.setConnectionTimeOut(5000);
         input3.setReadTimeOut(5000);
         input3.setUri("https://orkes-api-tester.orkesconductor.com/api");
-        input3.setBody("a="+setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0));
+        input3.setBody("a=" + setVariable.taskOutput.map("result").list("constDataSource").get("下单年份", 0));
         input3.setMethod(Http.Input.HttpMethod.GET);
         httpget.input(input3);
 
         final ConductorWorkflow<Map<String, String>> conductorWorkflow =
-                workBuilder.name("getResult_"+System.currentTimeMillis())//任务流名称
+                workBuilder.name("getResult_" + System.currentTimeMillis())//任务流名称
                         .ownerEmail("user@example.com").version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("fisrt demo")//基本信息
 
                         .add(httprun)
@@ -132,7 +130,10 @@ public class FirstDemo {
     }
 
 
+    //TODO TEST FOR GLOBAL VARIABLE
     public ConductorWorkflow<Map<String, String>> createDynamicSerialWorkFlow() {
+        SetVariable setVariable = new SetVariable("setValue");
+        setVariable.input("json", "original");
         WorkflowBuilder<Map<String, String>> workBuilder = new WorkflowBuilder<>(executor);
         //http1
         String referName = "httprun" + System.currentTimeMillis();
@@ -155,11 +156,10 @@ public class FirstDemo {
         final JQ jq1 = new JQ("jq_01", ".jq_result | .message").input("jq_result", JSONUtil.parseObj(httprun.taskOutput.map("response")).get("body"));
         final JQ jq2 = new JQ("jq_02", ".jq_result | .code").input("jq_result", JSONUtil.parseObj(httprun.taskOutput.map("response")).get("body"));
 
-        final SetVariable setVariable1 = new SetVariable("changeInputValue").input("cookies", "changedCookis");
-        final SetVariable setVariable2 = new SetVariable("changeInputValue2").input("cookies", "ssssssssssss");
-        SetVariable setVariable = new SetVariable("setValue0001");
 
-        setVariable.input("json",httprun.taskOutput.map("response").map("body").get("code"));
+//        setVariable.input("json", "changedValue");
+        setVariable.input("json", httprun.taskOutput.map("response").map("body").get("message"));
+//        setVariable.input("json", "$."+referName+"['response']['body']['result']");
 
 
 
@@ -167,8 +167,8 @@ public class FirstDemo {
         String referName2 = "http_get_status_" + System.currentTimeMillis();
         Http http_get_status = new Http(referName2);
 //        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + httprun.taskOutput.map("response").map("body").get("message");
-//        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
-        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.getInput().get("json");
+        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" +setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
+//        String body2 = "taskId=" + httprun.taskOutput.map("response").map("body").get("code") + "&msg=" + setVariable.getInput().get("json");
 
         Http.Input input2 = new Http.Input();
         input2.setContentType("application/x-www-form-urlencoded");
@@ -191,7 +191,6 @@ public class FirstDemo {
                 .defaultCase(new ArrayList<>());
 
 
-
         //http3
         String referName3 = "http_get_" + System.currentTimeMillis();
         Http httpget = new Http(referName3);
@@ -199,21 +198,17 @@ public class FirstDemo {
         input3.setConnectionTimeOut(5000);
         input3.setReadTimeOut(5000);
         input3.setUri("https://orkes-api-tester.orkesconductor.com/api");
-        input3.setBody("a="+setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0));
+        input3.setBody("a=" + setVariable.taskOutput.map("result").list("constDataSource").get("下单年份", 0));
         input3.setMethod(Http.Input.HttpMethod.GET);
         httpget.input(input3);
 
         final ConductorWorkflow<Map<String, String>> conductorWorkflow =
-                workBuilder.name("getResult_"+System.currentTimeMillis())//任务流名称
+                workBuilder.name("getResult_" + System.currentTimeMillis())//任务流名称
                         .ownerEmail("user@example.com").version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("fisrt demo")//基本信息
 
-                        .add(httprun)
-                        .add(jq1)
-                        .add(jq2)
-                        .add(setVariable1)
                         .add(setVariable)
+                        .add(httprun)
                         .add(new DoWhile("do_while01", "$." + referName2 + "['response']['body']['result'] === 1", new Wait("wait_01", Duration.ofSeconds(5)), http_get_status))
-                        .add(setVariable2)
                         .add(aSwitch)
                         .add(httpget)
                         .build();
@@ -223,13 +218,12 @@ public class FirstDemo {
     }
 
 
-
     public ConductorWorkflow<Map<String, String>> createForkWorkflow() {
 
-        WorkflowBuilder<Map<String,String>> workBuilder = new WorkflowBuilder<>(executor);
+        WorkflowBuilder<Map<String, String>> workBuilder = new WorkflowBuilder<>(executor);
         //construct elements
         //httpleft1
-        String referName1 = "httpleft1"+System.currentTimeMillis();
+        String referName1 = "httpleft1" + System.currentTimeMillis();
         Http httpleft1 = new Http(referName1);
         Http.Input input1 = new Http.Input();
         input1.setConnectionTimeOut(5000);
@@ -240,7 +234,7 @@ public class FirstDemo {
 
 
         //httpMiddle
-        String referNmae2 = "httpmiddle"+System.currentTimeMillis();
+        String referNmae2 = "httpmiddle" + System.currentTimeMillis();
         Http httpmiddle = new Http(referNmae2);
         String body2 = "taskId=b";
         Http.Input input2 = new Http.Input();
@@ -254,7 +248,7 @@ public class FirstDemo {
 
 
         //httpMiddle2
-        String referName2_1 = "httpmiddle2"+System.currentTimeMillis();
+        String referName2_1 = "httpmiddle2" + System.currentTimeMillis();
         Http httpGet = new Http(referName2_1);
         Http.Input input2_1 = new Http.Input();
         input2_1.setConnectionTimeOut(5000);
@@ -264,9 +258,8 @@ public class FirstDemo {
         httpGet.input(input2_1);
 
 
-
         //httpRight
-        String referNmae3 = "httpRight"+System.currentTimeMillis();
+        String referNmae3 = "httpRight" + System.currentTimeMillis();
         Http httpRight = new Http(referNmae3);
         String body3 = "taskId=c";
         Http.Input input3 = new Http.Input();
@@ -280,7 +273,7 @@ public class FirstDemo {
 
 
         //line4
-        String referName4 = "httpline"+System.currentTimeMillis();
+        String referName4 = "httpline" + System.currentTimeMillis();
         Http httpGet1 = new Http(referName4);
         Http.Input input4 = new Http.Input();
         input4.setConnectionTimeOut(5000);
@@ -290,7 +283,7 @@ public class FirstDemo {
         httpGet1.input(input4);
 
         //line5
-        String referName5 = "httpline2"+System.currentTimeMillis();
+        String referName5 = "httpline2" + System.currentTimeMillis();
         Http httpGet2 = new Http(referName5);
         Http.Input input5 = new Http.Input();
         input5.setConnectionTimeOut(5000);
@@ -300,23 +293,22 @@ public class FirstDemo {
         httpGet2.input(input5);
 
 
-
         final ConductorWorkflow<Map<String, String>> conductorWorkflow = workBuilder.name("api_for_test_fork").ownerEmail("user@example.com").version(1).timeoutPolicy(WorkflowDef.TimeoutPolicy.ALERT_ONLY, 0).description("fork demo")//基本信息
-                .add(new ForkJoin("fork_01", new Task[]{httpleft1},new Task[]{new DoWhile("get_user_details","$." + referNmae2 + "['response']['body']['result'] === 1",httpmiddle),httpGet},new Task[]{httpRight}).joinOn(httpGet.getTaskReferenceName()))
+                .add(new ForkJoin("fork_01", new Task[]{httpleft1}, new Task[]{new DoWhile("get_user_details", "$." + referNmae2 + "['response']['body']['result'] === 1", httpmiddle), httpGet}, new Task[]{httpRight}).joinOn(httpGet.getTaskReferenceName()))
                 .add(httpGet1).add(httpGet2).build();
-        conductorWorkflow.registerWorkflow(true,true);
+        conductorWorkflow.registerWorkflow(true, true);
         return conductorWorkflow;
     }
 
 
-    public static String getGenerateName(){
+    public static String getGenerateName() {
         final long currentTimeMillis = System.currentTimeMillis();
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-      return  String.valueOf(currentTimeMillis);
+        return String.valueOf(currentTimeMillis);
     }
 
     public static void main(String[] args) {
@@ -365,8 +357,7 @@ public class FirstDemo {
         WorkflowExecutor executor = new WorkflowExecutor(conductorServerURL);//TODO 程序启动时全局构建该对象
         // Create the new shipment workflow
         FirstDemo firstDemo = new FirstDemo(executor);
-        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createTemplateWorkflow();
-//        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createForkWorkflow();
+        final ConductorWorkflow<Map<String, String>> templateWorkflow = firstDemo.createDynamicSerialWorkFlow();
         Map<String, String> runParamter = new HashMap<>();
         runParamter.put("authotization", "i am auth");
         runParamter.put("cookies", "i am cookies");

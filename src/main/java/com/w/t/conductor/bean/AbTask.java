@@ -1,5 +1,6 @@
 package com.w.t.conductor.bean;
 
+import cn.hutool.core.lang.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,12 +23,8 @@ import java.util.Map;
 @SuperBuilder
 public class AbTask {
 
-    String id;//当前任务流中节点的唯一标识
-
-    Map<String, Object> globalVariable;//全局变量
-
     @Builder.Default
-    Integer faildTerminate = 1;//其他参数如对节点设置失败终止或者忽略,0忽略，1终止
+    String id = UUID.fastUUID().toString();//当前任务流中节点的唯一标识
 
 
 }
