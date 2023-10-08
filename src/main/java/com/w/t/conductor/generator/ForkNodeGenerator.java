@@ -15,8 +15,6 @@ import java.util.List;
  * @Classname DataANodeGenerator
  * @Description
  * @Authors Mr.Wu
- * @Date 2023/09/01 11:58
- * @Version 1.0
  */
 public class ForkNodeGenerator extends NodeGenerator {
 
@@ -29,7 +27,6 @@ public class ForkNodeGenerator extends NodeGenerator {
     public ForkNodeGenerator(TaskInfo nodeInfo, Task globalDef) {
         super(nodeInfo, globalDef);
     }
-
 
 
     /**
@@ -56,7 +53,7 @@ public class ForkNodeGenerator extends NodeGenerator {
         for (int i = 0; i < parallelTask.size(); i++) {
             List<Task> singleTask = new ArrayList<>();
             List<TaskInfo> taskInfos = parallelTask.get(i);
-            List<LogicNode> logicNodes = transLogic(taskInfos,globalDef);
+            List<LogicNode> logicNodes = transLogic(taskInfos, globalDef);
             logicNodes.stream().forEach(e -> {
                 singleTask.addAll(e.getNode());
             });

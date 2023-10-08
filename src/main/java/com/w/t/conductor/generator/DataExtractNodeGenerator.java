@@ -22,8 +22,6 @@ import java.util.Map;
  * @Classname DataExtractNodeGenerator
  * @Description
  * @Authors Mr.Wu
- * @Date 2023/09/01 11:58
- * @Version 1.0
  */
 public class DataExtractNodeGenerator extends NodeGenerator {
 
@@ -35,8 +33,9 @@ public class DataExtractNodeGenerator extends NodeGenerator {
     public DataExtractNodeGenerator(TaskInfo nodeInfo) {
         super(nodeInfo);
     }
-    public DataExtractNodeGenerator(TaskInfo nodeInfo,Task globalDef) {
-        super(nodeInfo,globalDef);
+
+    public DataExtractNodeGenerator(TaskInfo nodeInfo, Task globalDef) {
+        super(nodeInfo, globalDef);
     }
 
 
@@ -48,7 +47,7 @@ public class DataExtractNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
-        logger.info("当前进入extract构建节点，携带全局变量值:{}",JSONUtil.toJsonStr(globalDef));
+        logger.info("当前进入extract构建节点，携带全局变量值:{}", JSONUtil.toJsonStr(globalDef));
         List<Task> logicTaskList = new ArrayList<>();
         //触发节点构建
         final MicroserviceDetail dataExtractRunInfo = MicroserviceDetail.valueOf(RUN);

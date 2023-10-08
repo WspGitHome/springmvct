@@ -18,8 +18,6 @@ import java.util.List;
  * @Classname DataANodeGenerator
  * @Description
  * @Authors Mr.Wu
- * @Date 2023/09/01 11:58
- * @Version 1.0
  */
 public class DataANodeGenerator extends NodeGenerator {
 

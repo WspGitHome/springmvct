@@ -7,9 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @Packagename com.w.t.conductor.util
  * @Classname TaskInfo
@@ -25,6 +22,5 @@ public class AbTask {
 
     @Builder.Default
     String id = UUID.fastUUID().toString();//当前任务流中节点的唯一标识
-
 
 }

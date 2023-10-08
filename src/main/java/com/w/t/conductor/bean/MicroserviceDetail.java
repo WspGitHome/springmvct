@@ -7,10 +7,8 @@ import lombok.Getter;
 /**
  * @Packagename com.w.t.conductor.util
  * @Classname MicroserviceDetail
- * @Description 接口基本属性是固定的，存储接口的模版信息，真实请求时只需替换相应变参
+ * @Description 接口基本属性是固定的，存储接口的模版信息，真实请求时只需替换相应变参或者追加相应参数
  * @Authors Mr.Wu
- * @Date 2023/08/16 14:55
- * @Version 1.0
  */
 public enum MicroserviceDetail {
 

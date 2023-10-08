@@ -1,7 +1,6 @@
 package com.w.t.conductor.bean;
 
 import com.netflix.conductor.sdk.workflow.def.tasks.Task;
-import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +11,6 @@ import java.util.Map;
  * @Classname FlowInfo
  * @Description
  * @Authors Mr.Wu
- * @Date 2023/09/28 10:54
- * @Version 1.0
  */
 public class FlowInfo {
 

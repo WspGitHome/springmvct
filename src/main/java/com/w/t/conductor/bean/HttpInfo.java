@@ -13,8 +13,6 @@ import java.util.Map;
  * @Classname HttpInfo
  * @Description
  * @Authors Mr.Wu
- * @Date 2023/08/31 15:14
- * @Version 1.0
  */
 @Builder
 @Data

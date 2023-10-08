@@ -28,21 +28,17 @@ public class TaskInfo extends AbTask {
 
     private Map<String, Object> param;//页面选择节点的具体参数值（任务id或者页面填写的参数，优先于全局变量，value可能填写全局变量）
 
-//    private Integer type = 1;//默认1 普通节点，2 并行节点，3 条件节点 此处已通过nodeType判断
-
 
     //并行节点
     private List<List<TaskInfo>> parallelTask; //并行的任务集
-
     private List<Integer> waitForIndex = new ArrayList<>();//用于并行节点后面的节点是否需要等待前方的并行节点
 
 
     //条件判断节点
     private Map<String, Object> conditionObj;// key： globalKey|conditionExpression|conditionValue
-
     private List<TaskInfo> ifTaskInfos;
-
     private List<TaskInfo> elseTaskInfos;
+
 
     //初始化全局变量节点
     Map<String, Object> globalVariable;//全局变量传递～
