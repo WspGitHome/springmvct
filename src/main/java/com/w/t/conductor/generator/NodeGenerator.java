@@ -4,7 +4,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.netflix.conductor.sdk.workflow.def.tasks.*;
 import com.w.t.conductor.bean.HttpInfo;
 import com.w.t.conductor.bean.LogicNode;
-import com.w.t.conductor.bean.MicroserviceType;
+import com.w.t.conductor.bean.NodeType;
 import com.w.t.conductor.bean.TaskInfo;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
@@ -12,6 +12,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import java.io.IOException;
@@ -37,7 +38,12 @@ public abstract class NodeGenerator {
     public static final String SET_VALUE_REFERENCE_ID = "globalValue";//每个任务流里唯一所以名字不需要随机，便于其他节点取赋值。
     public static final String PRE_GLOBAL_VARIABLE = "pre_global_";//特殊标识taskReferenceName代表该几点可以用来获取值赋予全局变量
 
+    public NodeGenerator(TaskInfo taskInfo) {
+        this.nodeInfo = taskInfo;
+    }
+
     public TaskInfo nodeInfo;
+    public Task globalDef;
 
     /**
      * 单逻辑节点只能为串行
@@ -156,34 +162,31 @@ public abstract class NodeGenerator {
         return result;
     }
 
-    public List<LogicNode> transLogic(List<TaskInfo> taskInfos) throws Exception {
+    public List<LogicNode> transLogic(List<TaskInfo> taskInfos,Task def) throws Exception {
         List<LogicNode> logicNodes = new ArrayList<>();
         for (TaskInfo taskInfo : taskInfos) {
-            final LogicNode logicNode = nodeFactory(taskInfo).getLogicNode();
+            final LogicNode logicNode = nodeFactory(taskInfo,def).getLogicNode();
             logicNodes.add(logicNode);
         }
         return logicNodes;
     }
 
-    public NodeGenerator nodeFactory(TaskInfo taskInfo) {
-        final MicroserviceType mircType = taskInfo.getMircType();
-        if (MicroserviceType.DATA_EXTRACT.equals(mircType)) {
-            return new DataExtractNodeGenerator(taskInfo);
+    public NodeGenerator nodeFactory(TaskInfo taskInfo,Task globalDef) {
+        final NodeType mircType = taskInfo.getNodeType();
+        if (NodeType.DATA_EXTRACT.equals(mircType)) {
+            return new DataExtractNodeGenerator(taskInfo,globalDef);
         }
-        if (MicroserviceType.DATA_A.equals(mircType)) {
-            return new DataANodeGenerator(taskInfo);
+        if (NodeType.DATA_A.equals(mircType)) {
+            return new DataANodeGenerator(taskInfo,globalDef);
         }
-        if (MicroserviceType.JOIN_NODE.equals(mircType)) {
-            return new ForkNodeGenerator(taskInfo);
+        if (NodeType.JOIN_NODE.equals(mircType)) {
+            return new ForkNodeGenerator(taskInfo,globalDef);
         }
-        if (MicroserviceType.CONDITION_NODE.equals(mircType)) {
-            return new ConditionNodeGenerator(taskInfo);
+        if (NodeType.CONDITION_NODE.equals(mircType)) {
+            return new ConditionNodeGenerator(taskInfo,globalDef);
         }
-        if (MicroserviceType.INIT_VARIABLE_NODE.equals(mircType)) {
-            return new InitGlobalValueNodeGenerator(taskInfo);
-        }
-        if (MicroserviceType.SET_VARIABLE_NODE.equals(mircType)) {
-            return new SetValueNodeGenerator(taskInfo);
+        if (NodeType.SET_VARIABLE_NODE.equals(mircType)) {
+            return new SetValueNodeGenerator(taskInfo,globalDef);
         }
         throw new RuntimeException("节点未开放！");
     }
@@ -192,14 +195,13 @@ public abstract class NodeGenerator {
     //用于标识能够获取返回值 赋值全局变量的节点id(taskReferenceName)
     public String getPreVariableFlag(String nodeTye) {
         if (StringUtils.isEmpty(nodeTye)) {
-            return PRE_GLOBAL_VARIABLE+"fxjm_";
+            return PRE_GLOBAL_VARIABLE + "fxjm_";
         }
         return PRE_GLOBAL_VARIABLE + nodeTye + "_";
     }
 
 
-    enum SUPPORT_GLOBAL_VARIABLE{
-
+    enum SUPPORT_GLOBAL_VARIABLE {
 
 
     }

@@ -1,7 +1,10 @@
 package com.w.t.conductor.generator;
 
+import cn.hutool.json.JSONUtil;
 import com.netflix.conductor.sdk.workflow.def.tasks.Task;
 import com.w.t.conductor.bean.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,9 +20,16 @@ import java.util.Map;
  */
 public class ConditionNodeGenerator extends NodeGenerator {
 
+    Logger logger = LoggerFactory.getLogger(ConditionNodeGenerator.class);
+
     public ConditionNodeGenerator(TaskInfo nodeInfo) {
         super(nodeInfo);
     }
+
+    public ConditionNodeGenerator(TaskInfo nodeInfo, Task globalDef) {
+        super(nodeInfo, globalDef);
+    }
+
 
     private static Map<String, String> LOGCIN_SYMBOL = initMap();
 
@@ -30,25 +40,29 @@ public class ConditionNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
-
+        logger.info("当前进入condition构建节点，携带全局变量值:{}", JSONUtil.toJsonStr(globalDef));
         List<Task> logicTaskList = new ArrayList<>();
-        if (!nodeInfo.getMircType().equals(MicroserviceType.CONDITION_NODE)) {
+        if (!nodeInfo.getNodeType().equals(NodeType.CONDITION_NODE)) {
             return LogicNode.builder().node(logicTaskList).build();
         }
         final List<TaskInfo> ifTaskInfos = nodeInfo.getIfTaskInfos();
         final List<TaskInfo> elseTaskInfos = nodeInfo.getElseTaskInfos();
 
-        final List<LogicNode> ifLogicNodes = transLogic(ifTaskInfos);
-        final List<LogicNode> elsLogicNodes = transLogic(elseTaskInfos);
+        final List<LogicNode> ifLogicNodes = transLogic(ifTaskInfos, globalDef);
+        final List<LogicNode> elsLogicNodes = transLogic(elseTaskInfos, globalDef);
 
         List<Task> ifTask = new ArrayList<>();
         List<Task> elseTask = new ArrayList<>();
 
         ifLogicNodes.stream().forEach(e -> {
-            ifTask.addAll(e.getNode());
+            if (e.getNode() != null && !e.getNode().isEmpty()){
+                ifTask.addAll(e.getNode());
+            }
         });
         elsLogicNodes.stream().forEach(e -> {
-            elseTask.addAll(e.getNode());
+            if (e.getNode() != null && !e.getNode().isEmpty()){
+                elseTask.addAll(e.getNode());
+            }
         });
 
         final Map<String, Object> conditionObj = nodeInfo.getConditionObj();

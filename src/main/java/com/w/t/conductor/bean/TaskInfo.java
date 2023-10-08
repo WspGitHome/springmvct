@@ -24,11 +24,11 @@ import java.util.Map;
 @SuperBuilder
 public class TaskInfo extends AbTask {
 
-    private MicroserviceType mircType; //节点服务类型
+    private NodeType nodeType; //节点服务类型
 
     private Map<String, Object> param;//页面选择节点的具体参数值（任务id或者页面填写的参数，优先于全局变量，value可能填写全局变量）
 
-//    private Integer type = 1;//默认1 普通节点，2 并行节点，3 条件节点 此处已通过mircType判断
+//    private Integer type = 1;//默认1 普通节点，2 并行节点，3 条件节点 此处已通过nodeType判断
 
 
     //并行节点
@@ -48,10 +48,11 @@ public class TaskInfo extends AbTask {
     Map<String, Object> globalVariable;//全局变量传递～
 
     //赋值节点
-    Map<String,Task> currentFlowNodeId2RefernceTask;
-    private Map<String, Object> variableObj;//type = 3 时用  key： globalKey|variableValue
+    Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask; //存储Task节点对象用于获取前面某个节点输出值
+    private List<Map<String, Object>> variableObjList;//key： globalKey|variableValue｜type(1静态值，2动态值)
 
 
+    @Builder.Default
     Integer faildTerminate = 1;//其他参数如对节点设置失败终止或者忽略,0忽略，1终止
 
 

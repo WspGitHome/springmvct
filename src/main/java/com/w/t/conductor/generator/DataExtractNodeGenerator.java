@@ -1,5 +1,6 @@
 package com.w.t.conductor.generator;
 
+import cn.hutool.json.JSONUtil;
 import com.netflix.conductor.sdk.workflow.def.tasks.DoWhile;
 import com.netflix.conductor.sdk.workflow.def.tasks.Http;
 import com.netflix.conductor.sdk.workflow.def.tasks.Switch;
@@ -8,6 +9,8 @@ import com.w.t.conductor.bean.HttpInfo;
 import com.w.t.conductor.bean.LogicNode;
 import com.w.t.conductor.bean.MicroserviceDetail;
 import com.w.t.conductor.bean.TaskInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +27,16 @@ import java.util.Map;
  */
 public class DataExtractNodeGenerator extends NodeGenerator {
 
+    Logger logger = LoggerFactory.getLogger(DataExtractNodeGenerator.class);
+
     private static final String RUN = "DATA_EXTRACT_RUN";
     private static final String GET_STATUS = "DATA_EXTRACT_GET_STATUS";
 
     public DataExtractNodeGenerator(TaskInfo nodeInfo) {
         super(nodeInfo);
+    }
+    public DataExtractNodeGenerator(TaskInfo nodeInfo,Task globalDef) {
+        super(nodeInfo,globalDef);
     }
 
 
@@ -40,6 +48,7 @@ public class DataExtractNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
+        logger.info("当前进入extract构建节点，携带全局变量值:{}",JSONUtil.toJsonStr(globalDef));
         List<Task> logicTaskList = new ArrayList<>();
         //触发节点构建
         final MicroserviceDetail dataExtractRunInfo = MicroserviceDetail.valueOf(RUN);

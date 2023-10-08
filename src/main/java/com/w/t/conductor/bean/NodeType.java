@@ -2,9 +2,6 @@ package com.w.t.conductor.bean;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @Packagename com.w.t.conductor.util
  * @Classname MicroserviceType
@@ -12,7 +9,7 @@ import java.util.List;
  * @Authors Mr.Wu
  * @Version 1.0
  */
-public enum MicroserviceType {
+public enum NodeType {
 
     //系统节点
     JOIN_NODE("join_node", 1001, "并行节点标识"),
@@ -26,7 +23,7 @@ public enum MicroserviceType {
     DATA_A("data_a", 2, "简单触发接口类型任务");
 
 
-    MicroserviceType(String name, int code, String desc) {
+    NodeType(String name, int code, String desc) {
         this.code = code;
         this.name = name;
         this.desc = desc;

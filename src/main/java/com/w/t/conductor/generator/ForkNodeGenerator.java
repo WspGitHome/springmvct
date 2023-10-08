@@ -1,8 +1,11 @@
 package com.w.t.conductor.generator;
 
+import cn.hutool.json.JSONUtil;
 import com.netflix.conductor.sdk.workflow.def.tasks.ForkJoin;
 import com.netflix.conductor.sdk.workflow.def.tasks.Task;
 import com.w.t.conductor.bean.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +20,16 @@ import java.util.List;
  */
 public class ForkNodeGenerator extends NodeGenerator {
 
+    Logger logger = LoggerFactory.getLogger(ForkNodeGenerator.class);
 
     public ForkNodeGenerator(TaskInfo nodeInfo) {
         super(nodeInfo);
     }
+
+    public ForkNodeGenerator(TaskInfo nodeInfo, Task globalDef) {
+        super(nodeInfo, globalDef);
+    }
+
 
 
     /**
@@ -31,9 +40,10 @@ public class ForkNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
+        logger.info("当前进入fork构建节点，携带全局变量值:{}", JSONUtil.toJsonStr(globalDef));
 
         List<Task> logicTaskList = new ArrayList<>();
-        if (!nodeInfo.getMircType().equals(MicroserviceType.JOIN_NODE)) {
+        if (!nodeInfo.getNodeType().equals(NodeType.JOIN_NODE)) {
             logicTaskList.add(new ForkJoin(getReferenceName("fork"), new Task[]{}));
             return LogicNode.builder().node(logicTaskList).build();
         }
@@ -46,7 +56,7 @@ public class ForkNodeGenerator extends NodeGenerator {
         for (int i = 0; i < parallelTask.size(); i++) {
             List<Task> singleTask = new ArrayList<>();
             List<TaskInfo> taskInfos = parallelTask.get(i);
-            List<LogicNode> logicNodes = transLogic(taskInfos);
+            List<LogicNode> logicNodes = transLogic(taskInfos,globalDef);
             logicNodes.stream().forEach(e -> {
                 singleTask.addAll(e.getNode());
             });

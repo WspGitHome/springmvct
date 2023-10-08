@@ -44,7 +44,7 @@ public enum MicroserviceDetail {
     @Getter
     private String contentType;
     @Getter
-    private String body;//此处模版里全部是key=value 形式。根据类型拼接,value值为#{}代表需替换
+    private String body;//TODO 此处模版里全部是key=value 形式。根据类型拼接,value值为#{}代表需替换（可能会有问题有非必填的参数时，替换会报错） || 或者取不为空的参数直接拼接形成
     @Getter
     private int connectionTimeOut;
     @Getter
