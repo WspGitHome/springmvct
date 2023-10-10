@@ -83,12 +83,12 @@ public class ConditionNodeGenerator extends NodeGenerator {
     private String getResult(String compareExpression, String inputValue) {
         String newExpression = "";
         switch (compareExpression) {
-            case "==": {
+            case "等于": {
                 newExpression = "(function () { if($.compareResult == '" + inputValue + "') {return \"true\";} return \"false\"; })();";
                 break;
             }
-            case ">": {
-                newExpression = "(function () { if($.compareResult > '" + inputValue + "') {return \"true\";} return \"false\"; })();";
+            case "不等于": {
+                newExpression = "(function () { if($.compareResult != '" + inputValue + "') {return \"true\";} return \"false\"; })();";
                 break;
             }
             case "包含": {
@@ -96,8 +96,49 @@ public class ConditionNodeGenerator extends NodeGenerator {
                 break;
             }
 
-        }
+            case "开头包含": {
+                newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "') === 0) {return \"true\";} return \"false\"; })();";
+                break;
+            }
 
+            case "结尾包含": {
+                newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "') === $.compareResult.length - 1 ) {return \"true\";} return \"false\"; })();";
+                break;
+            }
+
+            case "为空": {
+                newExpression = "(function () { if(!$.compareResult) {return \"true\";} return \"false\"; })();";
+                break;
+            }
+
+            case "不为空": {
+                newExpression = "(function () { if($.compareResult) {return \"true\";} return \"false\"; })();";
+                break;
+            }
+
+            case "==": {
+                newExpression = "(function () { if($.compareResult == " + inputValue + ") {return \"true\";} return \"false\"; })();";
+                break;
+            }
+            case ">": {
+                newExpression = "(function () { if($.compareResult > " + inputValue + ") {return \"true\";} return \"false\"; })();";
+                break;
+            }
+            case "<": {
+                newExpression = "(function () { if($.compareResult < " + inputValue + ") {return \"true\";} return \"false\"; })();";
+                break;
+            }
+            case ">=": {
+                newExpression = "(function () { if($.compareResult >= " + inputValue + ") {return \"true\";} return \"false\"; })();";
+                break;
+            }
+
+            case "<=": {
+                newExpression = "(function () { if($.compareResult <= " + inputValue + ") {return \"true\";} return \"false\"; })();";
+                break;
+            }
+
+        }
         return newExpression;
 
     }

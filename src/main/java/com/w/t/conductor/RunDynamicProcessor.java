@@ -305,15 +305,15 @@ public class RunDynamicProcessor {
         elseConditon1.add(data_a_2);
         Map<String, Object> conditionObj1 = new HashMap<>();
         conditionObj1.put("globalKey", "x");
-        conditionObj1.put("conditionExpression", "==");
-        conditionObj1.put("conditionValue", "1");
+        conditionObj1.put("conditionExpression", "不等于");
+        conditionObj1.put("conditionValue", "8");
         TaskInfo conditon1 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE)
                 .conditionObj(conditionObj1)
                 .ifTaskInfos(ifConditon1).elseTaskInfos(elseConditon1).build();
 
 
         Map<String, Object> globalVariable = new HashMap<>();
-        globalVariable.putIfAbsent("x", "1");
+        globalVariable.putIfAbsent("x", "2");
         globalVariable.putIfAbsent("y", "11");
         globalVariable.putIfAbsent("z", "PWD");
         all.add(TaskInfo.builder().nodeType(NodeType.INIT_VARIABLE_NODE).globalVariable(globalVariable).build());//首先设置全局变量
