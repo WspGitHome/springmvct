@@ -243,9 +243,9 @@ public class RunDynamicProcessor {
         elseConditon3.add(data_a_6);
 
         Map<String, Object> conditionObj3 = new HashMap<>();
-        conditionObj3.put("globalKey", "p3");
-        conditionObj3.put("conditionExpression", ">=");
-        conditionObj3.put("conditionValue", "999");
+        conditionObj3.put("globalKey", "z");
+        conditionObj3.put("conditionExpression", "包含");
+        conditionObj3.put("conditionValue", "Q");
         TaskInfo conditon3 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE)
                 .conditionObj(conditionObj3)
                 .ifTaskInfos(ifConditon3).elseTaskInfos(elseConditon3).build();
@@ -275,9 +275,9 @@ public class RunDynamicProcessor {
         elseConditon2.add(data_a_5);
         elseConditon2.add(conditon3);
         Map<String, Object> conditionObj2 = new HashMap<>();
-        conditionObj2.put("globalKey", "p2");
-        conditionObj2.put("conditionExpression", "==");
-        conditionObj2.put("conditionValue", "991");
+        conditionObj2.put("globalKey", "y");
+        conditionObj2.put("conditionExpression", ">");
+        conditionObj2.put("conditionValue", "9");
         TaskInfo conditon2 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE)
                 .conditionObj(conditionObj2)
                 .ifTaskInfos(ifConditon2).elseTaskInfos(elseConditon2).build();
@@ -304,16 +304,16 @@ public class RunDynamicProcessor {
         List<TaskInfo> elseConditon1 = new ArrayList<>();
         elseConditon1.add(data_a_2);
         Map<String, Object> conditionObj1 = new HashMap<>();
-        conditionObj1.put("globalKey", "p1");
-        conditionObj1.put("conditionExpression", "<=");
-        conditionObj1.put("conditionValue", "999");
+        conditionObj1.put("globalKey", "x");
+        conditionObj1.put("conditionExpression", "==");
+        conditionObj1.put("conditionValue", "1");
         TaskInfo conditon1 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE)
                 .conditionObj(conditionObj1)
                 .ifTaskInfos(ifConditon1).elseTaskInfos(elseConditon1).build();
 
 
         Map<String, Object> globalVariable = new HashMap<>();
-        globalVariable.putIfAbsent("x", "2");
+        globalVariable.putIfAbsent("x", "1");
         globalVariable.putIfAbsent("y", "11");
         globalVariable.putIfAbsent("z", "PWD");
         all.add(TaskInfo.builder().nodeType(NodeType.INIT_VARIABLE_NODE).globalVariable(globalVariable).build());//首先设置全局变量
@@ -592,40 +592,37 @@ public class RunDynamicProcessor {
 
     private static List<LogicNode> transLogic(List<TaskInfo> taskInfos) throws Exception {
         List<LogicNode> logicNodes = new ArrayList<>();
-        //首个任务是全局参数的提取并传递，有全局变量一定放在第一个
-        TaskInfo initGlobalVariable = taskInfos.get(0);
-        Task globalDef = new SetVariable(NodeGenerator.SET_VALUE_REFERENCE_ID);
-        if (initGlobalVariable.getNodeType().equals(NodeType.INIT_VARIABLE_NODE)) {
-            globalDef = new InitGlobalValueNodeGenerator(initGlobalVariable).getLogicNode().getNode().get(0);
-            taskInfos.remove(0);
-        }
         for (TaskInfo taskInfo : taskInfos) {
-            final LogicNode logicNode = nodeFactory(taskInfo, globalDef).getLogicNode();
+            final LogicNode logicNode = nodeFactory(taskInfo).getLogicNode();
             logicNodes.add(logicNode);
         }
         return logicNodes;
     }
 
-    private static NodeGenerator nodeFactory(TaskInfo taskInfo, Task globalDef) {
+    private static NodeGenerator nodeFactory(TaskInfo taskInfo) {
         final NodeType mircType = taskInfo.getNodeType();
         //需要使用或者传递全局变量的 需要实现多参构造器，不需要的节点可以不传
         if (NodeType.DATA_EXTRACT.equals(mircType)) {
-            return new DataExtractNodeGenerator(taskInfo, globalDef);
+            return new DataExtractNodeGenerator(taskInfo);
         }
         if (NodeType.DATA_A.equals(mircType)) {
-            return new DataANodeGenerator(taskInfo, globalDef);
+            return new DataANodeGenerator(taskInfo);
         }
         if (NodeType.JOIN_NODE.equals(mircType)) {
-            return new ForkNodeGenerator(taskInfo, globalDef);
+            return new ForkNodeGenerator(taskInfo);
         }
         if (NodeType.CONDITION_NODE.equals(mircType)) {
-            return new ConditionNodeGenerator(taskInfo, globalDef);
+            return new ConditionNodeGenerator(taskInfo);
         }
         if (NodeType.SET_VARIABLE_NODE.equals(mircType)) {
-            return new SetValueNodeGenerator(taskInfo, globalDef);
+            return new SetValueNodeGenerator(taskInfo);
+        }
+        if (NodeType.INIT_VARIABLE_NODE.equals(mircType)) {
+            return new InitGlobalValueNodeGenerator(taskInfo);
         }
         throw new RuntimeException("节点未开放！");
     }
+
 
 
 }

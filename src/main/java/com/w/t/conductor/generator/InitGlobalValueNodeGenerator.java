@@ -34,7 +34,7 @@ public class InitGlobalValueNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
-        logger.info("当前进入初始化全局变量节点，携带全局变量值:{}，准备初始化的值：{}", JSONUtil.toJsonStr(globalDef), JSONUtil.toJsonStr(nodeInfo.getGlobalVariable()));
+        logger.info("当前进入初始化全局变量节点，准备初始化的值：{}",  JSONUtil.toJsonStr(nodeInfo.getGlobalVariable()));
         List<Task> logicTaskList = new ArrayList<>();
         final Map<String, Object> globalVariable = nodeInfo.getGlobalVariable();
         if (globalVariable != null && !globalVariable.entrySet().isEmpty()) {

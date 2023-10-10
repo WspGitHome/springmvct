@@ -32,18 +32,16 @@ import static com.w.t.conductor.util.RandomCodeGenerator.getRandomWithTimstamp;
  * @Version 1.0
  */
 @Data
-@AllArgsConstructor
 public abstract class NodeGenerator {
 
-    public static final String SET_VALUE_REFERENCE_ID = "globalValue";//每个任务流里唯一所以名字不需要随机，便于其他节点取赋值。
-    public static final String PRE_GLOBAL_VARIABLE = "pre_global_";//特殊标识taskReferenceName代表该几点可以用来获取值赋予全局变量
+    public static final String SET_VALUE_REFERENCE_ID = "globalValue";//初始化全局变量的唯一标识
+    public static final String PRE_GLOBAL_VARIABLE = "pre_global_";//特殊标识taskReferenceName代表该节点点可以用来获取值赋予全局变量
 
     public NodeGenerator(TaskInfo taskInfo) {
         this.nodeInfo = taskInfo;
     }
 
     public TaskInfo nodeInfo;
-    public Task globalDef;
 
     /**
      * 单逻辑节点只能为串行
@@ -118,7 +116,7 @@ public abstract class NodeGenerator {
 
     //Switch节点
     public Switch getSwitchNodeB(String conditionObj, Map<String, List<Task>> caseObj, List<Task<?>> defaultObj) {
-        final Switch aSwitch = new Switch(getReferenceName("switch"), conditionObj);
+        Switch aSwitch = new Switch(getReferenceName("switch"), conditionObj, true);
         caseObj.entrySet().stream().forEach(e -> {
             Task[] tasks = e.getValue().toArray(Task[]::new);
             aSwitch.switchCase(e.getKey(), tasks);
@@ -162,31 +160,34 @@ public abstract class NodeGenerator {
         return result;
     }
 
-    public List<LogicNode> transLogic(List<TaskInfo> taskInfos,Task def) throws Exception {
+    public List<LogicNode> transLogic(List<TaskInfo> taskInfos) throws Exception {
         List<LogicNode> logicNodes = new ArrayList<>();
         for (TaskInfo taskInfo : taskInfos) {
-            final LogicNode logicNode = nodeFactory(taskInfo,def).getLogicNode();
+            final LogicNode logicNode = nodeFactory(taskInfo).getLogicNode();
             logicNodes.add(logicNode);
         }
         return logicNodes;
     }
 
-    public NodeGenerator nodeFactory(TaskInfo taskInfo,Task globalDef) {
+    public NodeGenerator nodeFactory(TaskInfo taskInfo) {
         final NodeType mircType = taskInfo.getNodeType();
         if (NodeType.DATA_EXTRACT.equals(mircType)) {
-            return new DataExtractNodeGenerator(taskInfo,globalDef);
+            return new DataExtractNodeGenerator(taskInfo);
         }
         if (NodeType.DATA_A.equals(mircType)) {
-            return new DataANodeGenerator(taskInfo,globalDef);
+            return new DataANodeGenerator(taskInfo);
         }
         if (NodeType.JOIN_NODE.equals(mircType)) {
-            return new ForkNodeGenerator(taskInfo,globalDef);
+            return new ForkNodeGenerator(taskInfo);
         }
         if (NodeType.CONDITION_NODE.equals(mircType)) {
-            return new ConditionNodeGenerator(taskInfo,globalDef);
+            return new ConditionNodeGenerator(taskInfo);
         }
         if (NodeType.SET_VARIABLE_NODE.equals(mircType)) {
-            return new SetValueNodeGenerator(taskInfo,globalDef);
+            return new SetValueNodeGenerator(taskInfo);
+        }
+        if (NodeType.INIT_VARIABLE_NODE.equals(mircType)) {
+            return new InitGlobalValueNodeGenerator(taskInfo);
         }
         throw new RuntimeException("节点未开放！");
     }
@@ -206,17 +207,4 @@ public abstract class NodeGenerator {
 
     }
 
-
-    public static void main(String[] args) {
-        List<String> a = new ArrayList<>();
-        a.add("2");
-        a.add("3");
-        a.add("4");
-
-        String[] as = new String[]{};
-
-        a.toArray(as);
-        System.out.println(1);
-
-    }
 }

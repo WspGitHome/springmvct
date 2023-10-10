@@ -1,6 +1,5 @@
 package com.w.t.conductor.generator;
 
-import cn.hutool.json.JSONUtil;
 import com.netflix.conductor.sdk.workflow.def.tasks.ForkJoin;
 import com.netflix.conductor.sdk.workflow.def.tasks.Task;
 import com.w.t.conductor.bean.*;
@@ -24,10 +23,6 @@ public class ForkNodeGenerator extends NodeGenerator {
         super(nodeInfo);
     }
 
-    public ForkNodeGenerator(TaskInfo nodeInfo, Task globalDef) {
-        super(nodeInfo, globalDef);
-    }
-
 
     /**
      * ForkJoin 特殊 它包含各类逻辑节点
@@ -37,8 +32,6 @@ public class ForkNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
-        logger.info("当前进入fork构建节点，携带全局变量值:{}", JSONUtil.toJsonStr(globalDef));
-
         List<Task> logicTaskList = new ArrayList<>();
         if (!nodeInfo.getNodeType().equals(NodeType.JOIN_NODE)) {
             logicTaskList.add(new ForkJoin(getReferenceName("fork"), new Task[]{}));
@@ -53,7 +46,7 @@ public class ForkNodeGenerator extends NodeGenerator {
         for (int i = 0; i < parallelTask.size(); i++) {
             List<Task> singleTask = new ArrayList<>();
             List<TaskInfo> taskInfos = parallelTask.get(i);
-            List<LogicNode> logicNodes = transLogic(taskInfos, globalDef);
+            List<LogicNode> logicNodes = transLogic(taskInfos);
             logicNodes.stream().forEach(e -> {
                 singleTask.addAll(e.getNode());
             });
