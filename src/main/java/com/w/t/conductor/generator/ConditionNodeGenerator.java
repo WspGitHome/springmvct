@@ -84,7 +84,7 @@ public class ConditionNodeGenerator extends NodeGenerator {
         String newExpression = "";
         switch (compareExpression) {
             case "等于": {
-                newExpression = "(function () { if($.compareResult == '" + inputValue + "') {return \"true\";} return \"false\"; })();";
+                newExpression = "(function () { if($.compareResult === '" + inputValue + "') {return \"true\";} return \"false\"; })();";
                 break;
             }
             case "不等于": {
@@ -95,7 +95,10 @@ public class ConditionNodeGenerator extends NodeGenerator {
                 newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "')!= -1) {return \"true\";} return \"false\"; })();";
                 break;
             }
-
+            case "不包含": {
+                newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "') === -1) {return \"true\";} return \"false\"; })();";
+                break;
+            }
             case "开头包含": {
                 newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "') === 0) {return \"true\";} return \"false\"; })();";
                 break;
@@ -120,6 +123,12 @@ public class ConditionNodeGenerator extends NodeGenerator {
                 newExpression = "(function () { if($.compareResult == " + inputValue + ") {return \"true\";} return \"false\"; })();";
                 break;
             }
+
+            case "!=": {
+                newExpression = "(function () { if($.compareResult != " + inputValue + ") {return \"true\";} return \"false\"; })();";
+                break;
+            }
+
             case ">": {
                 newExpression = "(function () { if($.compareResult > " + inputValue + ") {return \"true\";} return \"false\"; })();";
                 break;
