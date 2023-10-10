@@ -28,6 +28,7 @@ public class InitGlobalValueNodeGenerator extends NodeGenerator {
     }
 
 
+
     /**
      * @return
      * @throws Exception

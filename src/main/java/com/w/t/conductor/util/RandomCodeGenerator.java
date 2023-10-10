@@ -42,4 +42,8 @@ public class RandomCodeGenerator {
     public static String getRandomWithTimstamp() {
         return "_" + generateRandomCode() + longTo62() + generateRandomCode();
     }
+
+    public static String getRandomWithTimstampPre() {
+        return "d"+generateRandomCode() + longTo62() + generateRandomCode();
+    }
 }

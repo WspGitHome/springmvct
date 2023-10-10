@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.w.t.conductor.util.RandomCodeGenerator.getRandomWithTimstamp;
 
@@ -32,16 +34,34 @@ import static com.w.t.conductor.util.RandomCodeGenerator.getRandomWithTimstamp;
  * @Version 1.0
  */
 @Data
+@AllArgsConstructor
 public abstract class NodeGenerator {
+    //appname命名规则  logicId_功能标识_特殊标识位_random  notice:不能以数字开头 会报错
 
     public static final String SET_VALUE_REFERENCE_ID = "globalValue";//初始化全局变量的唯一标识
-    public static final String PRE_GLOBAL_VARIABLE = "pre_global_";//特殊标识taskReferenceName代表该节点点可以用来获取值赋予全局变量
+
+    //特殊占位符
+    public static final String SPECIAL_PLACEHOLDER = "_normal";//普通
+    public static final String SPECIAL_GLOBAL_VARIABLE_CAN_SET = "_pre_global_can_set";//特殊标识taskReferenceName代表该节点点可以用来获取值赋予全局变量(每个逻辑几点下只允许存在一个能够赋值的节点所以map不需要集合)
+    public static final String SPECIAL_GET_LOG_FLAG = "_daas_getlog_flag";//特殊标识获取状态节点名字包含，所有节点获取任务状态的名字里需要加上(用于后期方便提取日志)
+
+    //各个逻辑节点名称罗列
+    public static final String STATIC_DATA_EXTRACT="_data_extract";
+    public static final String STATIC_DATA_A="_data_a";
+
+    //status
+    public static final String STATIC_RUN="_run";
+    public static final String STATIC_GET_STATUS="_getstatus";
+
 
     public NodeGenerator(TaskInfo taskInfo) {
         this.nodeInfo = taskInfo;
     }
 
     public TaskInfo nodeInfo;
+
+    public Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask;
+
 
     /**
      * 单逻辑节点只能为串行
@@ -160,31 +180,31 @@ public abstract class NodeGenerator {
         return result;
     }
 
-    public List<LogicNode> transLogic(List<TaskInfo> taskInfos) throws Exception {
+    public List<LogicNode> transLogic(List<TaskInfo> taskInfos,Map<String,Task> map) throws Exception {
         List<LogicNode> logicNodes = new ArrayList<>();
         for (TaskInfo taskInfo : taskInfos) {
-            final LogicNode logicNode = nodeFactory(taskInfo).getLogicNode();
+            final LogicNode logicNode = nodeFactory(taskInfo,map).getLogicNode();
             logicNodes.add(logicNode);
         }
         return logicNodes;
     }
 
-    public NodeGenerator nodeFactory(TaskInfo taskInfo) {
+    public NodeGenerator nodeFactory(TaskInfo taskInfo,Map<String,Task> map) {
         final NodeType mircType = taskInfo.getNodeType();
         if (NodeType.DATA_EXTRACT.equals(mircType)) {
-            return new DataExtractNodeGenerator(taskInfo);
+            return new DataExtractNodeGenerator(taskInfo,map);
         }
         if (NodeType.DATA_A.equals(mircType)) {
-            return new DataANodeGenerator(taskInfo);
+            return new DataANodeGenerator(taskInfo,map);
         }
         if (NodeType.JOIN_NODE.equals(mircType)) {
-            return new ForkNodeGenerator(taskInfo);
+            return new ForkNodeGenerator(taskInfo,map);
         }
         if (NodeType.CONDITION_NODE.equals(mircType)) {
-            return new ConditionNodeGenerator(taskInfo);
+            return new ConditionNodeGenerator(taskInfo,map);
         }
         if (NodeType.SET_VARIABLE_NODE.equals(mircType)) {
-            return new SetValueNodeGenerator(taskInfo);
+            return new SetValueNodeGenerator(taskInfo,map);
         }
         if (NodeType.INIT_VARIABLE_NODE.equals(mircType)) {
             return new InitGlobalValueNodeGenerator(taskInfo);
@@ -192,19 +212,28 @@ public abstract class NodeGenerator {
         throw new RuntimeException("节点未开放！");
     }
 
+    public static String getIdFromDynamic(String input) {
+        // 匹配 $. 与第一个 [] 之间的内容
+        Pattern pattern1 = Pattern.compile("\\$\\.(.*?)\\[");
+        Matcher matcher1 = pattern1.matcher(input);
 
-    //用于标识能够获取返回值 赋值全局变量的节点id(taskReferenceName)
-    public String getPreVariableFlag(String nodeTye) {
-        if (StringUtils.isEmpty(nodeTye)) {
-            return PRE_GLOBAL_VARIABLE + "fxjm_";
+        if (matcher1.find()) {
+            String match1 = matcher1.group(1);
+            return match1;
         }
-        return PRE_GLOBAL_VARIABLE + nodeTye + "_";
+        return null;
     }
 
+    public static List<String> getLocationFromDynamic(String input) {
+        List<String> outLocation = new ArrayList<>();
+        // 匹配两个 [] 中的内容
+        Pattern pattern2 = Pattern.compile("\\[(.*?)\\]");
+        Matcher matcher2 = pattern2.matcher(input);
 
-    enum SUPPORT_GLOBAL_VARIABLE {
-
-
+        while (matcher2.find()) {
+            outLocation.add(matcher2.group(1));
+        }
+        return outLocation;
     }
 
 }

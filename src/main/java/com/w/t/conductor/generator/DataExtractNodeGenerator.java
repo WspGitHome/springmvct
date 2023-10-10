@@ -26,13 +26,16 @@ public class DataExtractNodeGenerator extends NodeGenerator {
 
     Logger logger = LoggerFactory.getLogger(DataExtractNodeGenerator.class);
 
-    private static final String RUN = "DATA_EXTRACT_RUN";
-    private static final String GET_STATUS = "DATA_EXTRACT_GET_STATUS";
+    private static final String I_RUN = "DATA_EXTRACT_RUN";
+    private static final String I_GET_STATUS = "DATA_EXTRACT_GET_STATUS";
 
     public DataExtractNodeGenerator(TaskInfo nodeInfo) {
         super(nodeInfo);
     }
 
+    public DataExtractNodeGenerator(TaskInfo nodeInfo, Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask) {
+        super(nodeInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
+    }
 
     /**
      * 默认一个逻辑节点有如下几部分组成，不同业务的逻辑节点根据现有接口的情况不同在实现的可能也各有差异
@@ -44,12 +47,12 @@ public class DataExtractNodeGenerator extends NodeGenerator {
     public LogicNode getLogicNode() throws Exception {
         List<Task> logicTaskList = new ArrayList<>();
         //触发节点构建
-        final MicroserviceDetail dataExtractRunInfo = MicroserviceDetail.valueOf(RUN);
+        final MicroserviceDetail dataExtractRunInfo = MicroserviceDetail.valueOf(I_RUN);
         String templateParam = dataExtractRunInfo.getBody();
         final Map<String, Object> param = nodeInfo.getParam();
         final String runbody = super.paramReplace(templateParam, param);
 
-        HttpInfo dataextractrun = HttpInfo.builder().appName("dataextractrun")
+        HttpInfo dataextractrun = HttpInfo.builder().appName(nodeInfo.getId()+STATIC_DATA_EXTRACT+STATIC_RUN+SPECIAL_PLACEHOLDER)
                 .url(dataExtractRunInfo.getUrl())
                 .method(dataExtractRunInfo.getMethod())
                 .accept(dataExtractRunInfo.getAccept())
@@ -57,15 +60,15 @@ public class DataExtractNodeGenerator extends NodeGenerator {
                 .body(runbody)
                 .readTimeout(dataExtractRunInfo.getReadTimeOut())
                 .connectionTimeout(dataExtractRunInfo.getConnectionTimeOut())
-                .headers(null)//按服务添加token，此处暂时不添加token //TODO 服务考虑设置长时间的token 和 cookie 或者不需要填写，如果接口需要cookie获取用户则不行
+                .headers(null)//按服务添加token，此处暂时不添加token //TODO 设置长时间的token
                 .build();
         Http dataextractrunNode = getHttpNode(dataextractrun);
 
         //构建获取状态的节点
-        final MicroserviceDetail dataExtractGetStatusInfo = MicroserviceDetail.valueOf(GET_STATUS);
+        final MicroserviceDetail dataExtractGetStatusInfo = MicroserviceDetail.valueOf(I_GET_STATUS);
         String statusParam = dataExtractGetStatusInfo.getBody();
         statusParam = statusParam + dataextractrunNode.taskOutput.map("response").map("body").get("code");//重点如何获取上个接口返回值
-        HttpInfo dataextractstatusInfo = HttpInfo.builder().appName("dataextractstatus")
+        HttpInfo dataextractstatusInfo = HttpInfo.builder().appName(nodeInfo.getId()+STATIC_DATA_EXTRACT+STATIC_GET_STATUS+SPECIAL_PLACEHOLDER)
                 .url(dataExtractGetStatusInfo.getUrl())
                 .method(dataExtractGetStatusInfo.getMethod())
                 .accept(dataExtractGetStatusInfo.getAccept())
@@ -95,6 +98,12 @@ public class DataExtractNodeGenerator extends NodeGenerator {
         if (nodeInfo.getFaildTerminate() == 1) {
             logicTaskList.add(switchNode);
         }
+
+        logicTaskList.stream().forEach(e -> {
+            if (e.getTaskReferenceName().contains(SPECIAL_GLOBAL_VARIABLE_CAN_SET)) {
+                currentFlowDynamicSetValueNodeId2RefernceTask.put(nodeInfo.getId(), e);
+            }
+        });
         return LogicNode.builder().node(logicTaskList).build();
     }
 

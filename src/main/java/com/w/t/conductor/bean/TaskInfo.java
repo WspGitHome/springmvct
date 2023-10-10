@@ -44,7 +44,7 @@ public class TaskInfo extends AbTask {
     Map<String, Object> globalVariable;//全局变量传递～
 
     //赋值节点
-    Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask; //存储Task节点对象用于获取前面某个节点输出值
+    //Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask; //存储Task节点对象用于获取前面某个节点输出值 全局流转此处无用
     private List<Map<String, Object>> variableObjList;//key： globalKey|variableValue｜type(1静态值，2动态值)
 
 

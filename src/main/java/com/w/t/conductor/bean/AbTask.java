@@ -1,6 +1,8 @@
 package com.w.t.conductor.bean;
 
 import cn.hutool.core.lang.UUID;
+import com.w.t.conductor.generator.NodeGenerator;
+import com.w.t.conductor.util.RandomCodeGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +23,6 @@ import lombok.experimental.SuperBuilder;
 public class AbTask {
 
     @Builder.Default
-    String id = UUID.fastUUID().toString();//当前任务流中节点的唯一标识
+    String id = RandomCodeGenerator.getRandomWithTimstampPre();//当前任务流中节点的唯一标识 不能以数字开头
 
 }

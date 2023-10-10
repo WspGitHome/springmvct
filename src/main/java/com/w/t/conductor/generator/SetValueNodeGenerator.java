@@ -26,6 +26,10 @@ public class SetValueNodeGenerator extends NodeGenerator {
     }
 
 
+    public SetValueNodeGenerator(TaskInfo nodeInfo, Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask) {
+        super(nodeInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
+
+    }
 
     /**
      * @return
@@ -38,14 +42,30 @@ public class SetValueNodeGenerator extends NodeGenerator {
         SetVariable setVariableObj = new SetVariable(getReferenceName(SET_VALUE_REFERENCE_ID));
         for (Map<String, Object> vavariableObj : variableObjList) {
             final int type = Integer.parseInt(String.valueOf(vavariableObj.get("type")));
+            final String globalKey = String.valueOf(vavariableObj.get("globalKey"));
+            final String variableValue = String.valueOf(vavariableObj.get("variableValue"));
             if (type == 1) {
                 //修改为静态值
-                setVariableObj.input(String.valueOf(vavariableObj.get("globalKey")), String.valueOf(vavariableObj.get("variableValue")));
-            } else if (type == 2) {
+                setVariableObj.input(globalKey, variableValue);
+            } else if (type == 2) { //NOTIC :需要注意顺序问题，变量节点需要在当前赋值节点前
                 //修改值为动态相关节点的表达式值
-                //TODO 如何放入并获取 ????
-                final Map<String, Task> currentFlowNodeId2RefernceTask = nodeInfo.getCurrentFlowDynamicSetValueNodeId2RefernceTask();
-
+                final String idFromDynamic = getIdFromDynamic(variableValue);
+                final List<String> locationFromDynamic = getLocationFromDynamic(variableValue);
+                String arraySecondValue = "";
+                if (locationFromDynamic.size() > 1) {
+                    arraySecondValue = locationFromDynamic.get(1);
+                }
+                final String arrayFirstValue = locationFromDynamic.get(0);
+                final Task putValueTask = currentFlowDynamicSetValueNodeId2RefernceTask.get(idFromDynamic);
+                if (arraySecondValue.isEmpty()) {
+                    final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").get(arrayFirstValue);
+                    setVariableObj.input(globalKey, getFromNodeValue);
+                } else {
+                    //TODO setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
+                    // list这种key需要特殊指定根据TASK referName提取任务类型 ，目前if里面支持单层jsonobj，else 目前默认写死支持分析建模结果解析
+                    final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").list(arrayFirstValue).get(arrayFirstValue, Integer.parseInt(arraySecondValue));
+                    setVariableObj.input(globalKey, getFromNodeValue);
+                }
             }
 
         }

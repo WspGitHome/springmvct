@@ -196,7 +196,7 @@ public class RunDynamicProcessor {
         all.add(condition4);
 
         //build over
-        final List<LogicNode> logicNodes = transLogic(all);
+        final List<LogicNode> logicNodes = transLogic(all,null);
         //构建任务流对象
 
         String workflowId = null;
@@ -258,7 +258,7 @@ public class RunDynamicProcessor {
         List<TaskInfo> elseConditon2 = new ArrayList<>();
         elseConditon2.add(data_extract_3);
         elseConditon2.add(data_extract_4);
-        //SET VALUE1
+        //SET VALUE2
         List<Map<String, Object>> variableObjList2 = new ArrayList<>();
         Map<String, Object> setvalue2_1 = new HashMap<>();
         setvalue2_1.put("globalKey", "z");
@@ -294,8 +294,8 @@ public class RunDynamicProcessor {
 
         Map<String, Object> setvalue1_2 = new HashMap<>();
         setvalue1_2.put("globalKey", "x");
-        setvalue1_2.put("variableValue", "233");
-        setvalue1_2.put("type", "1");
+        setvalue1_2.put("variableValue", "$.mockId01[queryid]");
+        setvalue1_2.put("type", "2");
         variableObjList1.add(setvalue1_1);
         variableObjList1.add(setvalue1_2);
 
@@ -319,10 +319,17 @@ public class RunDynamicProcessor {
         all.add(TaskInfo.builder().nodeType(NodeType.INIT_VARIABLE_NODE).globalVariable(globalVariable).build());//首先设置全局变量
         all.add(data_a_1);
         all.add(conditon1);
+
+        //TODO taskInfo mock id from page
+
+        all.get(1).setId("mockId01");
+        Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask = new HashMap<>();
+//        transLogic(all, currentFlowDynamicSetValueNodeId2RefernceTask);
+
         List<LogicNode> logicNodes = new ArrayList<>();
         //check over
         try {
-            logicNodes = transLogic(all);
+            logicNodes = transLogic(all, currentFlowDynamicSetValueNodeId2RefernceTask);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -448,7 +455,7 @@ public class RunDynamicProcessor {
         TaskInfo data_a_04 = TaskInfo.builder().nodeType(NodeType.DATA_A).build();
         all.add(data_a_04);
 
-        final List<LogicNode> logicNodes = transLogic(all);
+        final List<LogicNode> logicNodes = transLogic(all,null);
         //构建任务流对象
 
         String workflowId = null;
@@ -490,7 +497,7 @@ public class RunDynamicProcessor {
         taskInfos.add(data_a_02);
         taskInfos.add(data_extract_02);
 
-        final List<LogicNode> logicNodes = transLogic(taskInfos);
+        final List<LogicNode> logicNodes = transLogic(taskInfos,null);
         //构建任务流对象
 
         String workflowId = null;
@@ -590,39 +597,39 @@ public class RunDynamicProcessor {
     }
 
 
-    private static List<LogicNode> transLogic(List<TaskInfo> taskInfos) throws Exception {
+    private static List<LogicNode> transLogic(List<TaskInfo> taskInfos, Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask) throws Exception {
         List<LogicNode> logicNodes = new ArrayList<>();
         for (TaskInfo taskInfo : taskInfos) {
-            final LogicNode logicNode = nodeFactory(taskInfo).getLogicNode();
+            final LogicNode logicNode = nodeFactory(taskInfo, currentFlowDynamicSetValueNodeId2RefernceTask).getLogicNode();
             logicNodes.add(logicNode);
         }
         return logicNodes;
     }
 
-    private static NodeGenerator nodeFactory(TaskInfo taskInfo) {
+    private static NodeGenerator nodeFactory(TaskInfo taskInfo, Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask) {
         final NodeType mircType = taskInfo.getNodeType();
         //需要使用或者传递全局变量的 需要实现多参构造器，不需要的节点可以不传
         if (NodeType.DATA_EXTRACT.equals(mircType)) {
-            return new DataExtractNodeGenerator(taskInfo);
+            return new DataExtractNodeGenerator(taskInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
         }
         if (NodeType.DATA_A.equals(mircType)) {
-            return new DataANodeGenerator(taskInfo);
+            return new DataANodeGenerator(taskInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
         }
+
         if (NodeType.JOIN_NODE.equals(mircType)) {
-            return new ForkNodeGenerator(taskInfo);
+            return new ForkNodeGenerator(taskInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
         }
         if (NodeType.CONDITION_NODE.equals(mircType)) {
-            return new ConditionNodeGenerator(taskInfo);
+            return new ConditionNodeGenerator(taskInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
         }
         if (NodeType.SET_VARIABLE_NODE.equals(mircType)) {
-            return new SetValueNodeGenerator(taskInfo);
+            return new SetValueNodeGenerator(taskInfo,currentFlowDynamicSetValueNodeId2RefernceTask);
         }
         if (NodeType.INIT_VARIABLE_NODE.equals(mircType)) {
             return new InitGlobalValueNodeGenerator(taskInfo);
         }
         throw new RuntimeException("节点未开放！");
     }
-
 
 
 }

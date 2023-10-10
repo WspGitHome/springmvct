@@ -27,6 +27,10 @@ public class ConditionNodeGenerator extends NodeGenerator {
         super(nodeInfo);
     }
 
+    public ConditionNodeGenerator(TaskInfo nodeInfo, Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask) {
+        super(nodeInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
+
+    }
 
     /**
      * @return
@@ -41,8 +45,8 @@ public class ConditionNodeGenerator extends NodeGenerator {
         final List<TaskInfo> ifTaskInfos = nodeInfo.getIfTaskInfos();
         final List<TaskInfo> elseTaskInfos = nodeInfo.getElseTaskInfos();
 
-        final List<LogicNode> ifLogicNodes = transLogic(ifTaskInfos);
-        final List<LogicNode> elsLogicNodes = transLogic(elseTaskInfos);
+        final List<LogicNode> ifLogicNodes = transLogic(ifTaskInfos,currentFlowDynamicSetValueNodeId2RefernceTask);
+        final List<LogicNode> elsLogicNodes = transLogic(elseTaskInfos,currentFlowDynamicSetValueNodeId2RefernceTask);
 
         List<Task> ifTask = new ArrayList<>();
         List<Task> elseTask = new ArrayList<>();

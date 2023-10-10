@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Packagename com.w.t.conductor.util
@@ -22,13 +23,17 @@ public class DataANodeGenerator extends NodeGenerator {
 
     Logger logger = LoggerFactory.getLogger(DataANodeGenerator.class);
 
-    private static final String RUN = "DATA_A_RUN";
+    private static final String I_RUN = "DATA_A_RUN";
 
 
     public DataANodeGenerator(TaskInfo nodeInfo) {
         super(nodeInfo);
     }
 
+    public DataANodeGenerator(TaskInfo nodeInfo, Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask) {
+        super(nodeInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
+
+    }
 
 
     /**
@@ -41,9 +46,9 @@ public class DataANodeGenerator extends NodeGenerator {
     public LogicNode getLogicNode() throws Exception {
         List<Task> logicTaskList = new ArrayList<>();
         //触发节点构建
-        final MicroserviceDetail dataARunInfo = MicroserviceDetail.valueOf(RUN);
+        final MicroserviceDetail dataARunInfo = MicroserviceDetail.valueOf(I_RUN);
 
-        HttpInfo dataArun = HttpInfo.builder().appName("data_a_run")
+        HttpInfo dataArun = HttpInfo.builder().appName(nodeInfo.getId() + STATIC_DATA_A + STATIC_RUN + SPECIAL_GLOBAL_VARIABLE_CAN_SET)
                 .url(dataARunInfo.getUrl())
                 .method(dataARunInfo.getMethod())
                 .accept(dataARunInfo.getAccept())
@@ -55,6 +60,12 @@ public class DataANodeGenerator extends NodeGenerator {
         Http dataArunNode = getHttpNode(dataArun);
 
         logicTaskList.add(dataArunNode);
+
+        logicTaskList.stream().forEach(e -> {
+            if (e.getTaskReferenceName().contains(SPECIAL_GLOBAL_VARIABLE_CAN_SET)) {
+                currentFlowDynamicSetValueNodeId2RefernceTask.put(nodeInfo.getId(), e);
+            }
+        });
         return LogicNode.builder().node(logicTaskList).build();
     }
 

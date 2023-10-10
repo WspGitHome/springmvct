@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Packagename com.w.t.conductor.util
@@ -23,6 +24,9 @@ public class ForkNodeGenerator extends NodeGenerator {
         super(nodeInfo);
     }
 
+    public ForkNodeGenerator(TaskInfo nodeInfo, Map<String, Task> currentFlowDynamicSetValueNodeId2RefernceTask) {
+        super(nodeInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
+    }
 
     /**
      * ForkJoin 特殊 它包含各类逻辑节点
@@ -46,7 +50,7 @@ public class ForkNodeGenerator extends NodeGenerator {
         for (int i = 0; i < parallelTask.size(); i++) {
             List<Task> singleTask = new ArrayList<>();
             List<TaskInfo> taskInfos = parallelTask.get(i);
-            List<LogicNode> logicNodes = transLogic(taskInfos);
+            List<LogicNode> logicNodes = transLogic(taskInfos,currentFlowDynamicSetValueNodeId2RefernceTask);
             logicNodes.stream().forEach(e -> {
                 singleTask.addAll(e.getNode());
             });

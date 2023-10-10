@@ -2,6 +2,8 @@ package com.w.t.conductor;
 
 import lombok.Data;
 
+
+
 /**
  * @Packagename com.w.t.conductor
  * @Classname DataExtract
@@ -18,4 +20,7 @@ public class DataExtract {
     private String instanceId;
 
     private String runType;
+
+
+
 }
