@@ -97,22 +97,22 @@ public class ConditionNodeGenerator extends NodeGenerator {
                 break;
             }
             case "包含": {
-                newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "')!= -1) {return \"true\";} return \"false\"; })();";
+                newExpression = "(function () { if($.compareResult && $.compareResult.indexOf('" + inputValue + "')!= -1) {return \"true\";} return \"false\"; })();";
                 break;
             }
             case "不包含": {
-                newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "') === -1) {return \"true\";} return \"false\"; })();";
+                newExpression = "(function () { if($.compareResult && $.compareResult.indexOf('" + inputValue + "') === -1) {return \"true\";} return \"false\"; })();";
                 break;
             }
             case "开头包含": {
 //                newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "') === 0) {return \"true\";} return \"false\"; })();";
-                newExpression = "(function () { if($.compareResult.startsWith('" + inputValue + "')) {return \"true\";} return \"false\"; })();";
+                newExpression = "(function () { if($.compareResult && $.compareResult.startsWith('" + inputValue + "')) {return \"true\";} return \"false\"; })();";
                 break;
             }
 
             case "结尾包含": {
 //                newExpression = "(function () { if($.compareResult.indexOf('" + inputValue + "') === $.compareResult.length - 1 ) {return \"true\";} return \"false\"; })();";
-                newExpression = "(function () { if($.compareResult.endsWith('" + inputValue + "')) {return \"true\";} return \"false\"; })();";
+                newExpression = "(function () { if($.compareResult && $.compareResult.endsWith('" + inputValue + "')) {return \"true\";} return \"false\"; })();";
                 break;
             }
 

@@ -177,12 +177,11 @@ public class RunDynamicProcessor {
         condition2.setConditionObj(conditionObj2);
         condition2.setIfTaskInfos(ifConditon2);
         condition2.setElseTaskInfos(elseConditon2);
-        list2.add(data_extract_4);
         //Set value 2
         List<Map<String, Object>> variableObjList2 = new ArrayList<>();
         Map<String, Object> setvalue2_1 = new HashMap<>();
         setvalue2_1.put("globalKey", "b");
-        setvalue2_1.put("variableValue", "$.mockId02[message][]");
+        setvalue2_1.put("variableValue", "$.mockId02[queryid][]");
         setvalue2_1.put("type", "2");
 
         Map<String, Object> setvalue2_2 = new HashMap<>();
@@ -192,6 +191,7 @@ public class RunDynamicProcessor {
         variableObjList2.add(setvalue2_1);
         variableObjList2.add(setvalue2_2);
 
+        list2.add(data_extract_4);
         list2.add(TaskInfo.builder().nodeType(NodeType.SET_VARIABLE_NODE).variableObjList(variableObjList2).build());//setValue
 
 
@@ -238,6 +238,7 @@ public class RunDynamicProcessor {
         forkTask.setParallelTask(taskInfos1);
         List<Integer> waitforIndex = new ArrayList<>();
         waitforIndex.add(0);
+        waitforIndex.add(1);//大fork
         forkTask.setWaitForIndex(waitforIndex);
 
 

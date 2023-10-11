@@ -66,7 +66,7 @@ public class SetValueNodeGenerator extends NodeGenerator {
                     } else {
                         //TODO setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
                         // list这种key需要特殊指定根据TASK referName提取任务类型 ，目前if里面支持单层jsonobj，else 目前默认写死支持分析建模结果解析
-                        final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").list(arrayFirstValue).get(arrayFirstValue, Integer.parseInt(arraySecondValue));
+                        final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").map("result").list("constDataSource").get(arrayFirstValue, Integer.parseInt(arraySecondValue));
                         setVariableObj.input(globalKey, getFromNodeValue);
                     }
                 } else {
