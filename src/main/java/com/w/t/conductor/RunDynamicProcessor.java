@@ -62,7 +62,7 @@ public class RunDynamicProcessor {
     private static void parallelConditionRun() throws Exception {
         List<TaskInfo> all = new ArrayList<>();
 
-        TaskInfo data_a_1 = TaskInfo.builder().nodeType(NodeType.DATA_A).build();
+        TaskInfo data_a_1 = TaskInfo.builder().nodeType(NodeType.DATA_A).id("mockId01").build();
         TaskInfo data_a_2 = TaskInfo.builder().nodeType(NodeType.DATA_A).build();
         TaskInfo data_a_3 = TaskInfo.builder().nodeType(NodeType.DATA_A).build();
         TaskInfo data_a_4 = TaskInfo.builder().nodeType(NodeType.DATA_A).build();
@@ -80,7 +80,7 @@ public class RunDynamicProcessor {
         TaskInfo data_extract_1 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).param(param_data_extract_common).build();
         TaskInfo data_extract_2 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).param(param_data_extract_common).build();
         TaskInfo data_extract_3 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).param(param_data_extract_common).build();
-        TaskInfo data_extract_4 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).param(param_data_extract_common).build();
+        TaskInfo data_extract_4 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).id("mockId02").param(param_data_extract_common).build();
         TaskInfo data_extract_5 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).param(param_data_extract_common).build();
         TaskInfo data_extract_6 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).param(param_data_extract_common).build();
         TaskInfo data_extract_7 = TaskInfo.builder().nodeType(NodeType.DATA_EXTRACT).param(param_data_extract_common).build();
@@ -94,9 +94,9 @@ public class RunDynamicProcessor {
         List<TaskInfo> list1 = new ArrayList<>();
 
         Map<String, Object> conditionObj1 = new HashMap<>();
-        conditionObj1.put("globalKey", "p1");
-        conditionObj1.put("conditionExpression", ">=");
-        conditionObj1.put("conditionValue", "999");
+        conditionObj1.put("globalKey", "a");
+        conditionObj1.put("conditionExpression", "结尾包含");
+        conditionObj1.put("conditionValue", "me");
         TaskInfo conditon1 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE).build();
         List<TaskInfo> ifConditon1 = new ArrayList<>();
         TaskInfo forkTask2 = TaskInfo.builder().nodeType(NodeType.JOIN_NODE).build();
@@ -118,7 +118,23 @@ public class RunDynamicProcessor {
         forkTask2.setWaitForIndex(waitIndex01);
         ifConditon1.add(data_extract_1);
         ifConditon1.add(forkTask2);
+        //SET value 1
+        List<Map<String, Object>> variableObjList1 = new ArrayList<>();
+        Map<String, Object> setvalue1_1 = new HashMap<>();
+        setvalue1_1.put("globalKey", "a");
+        setvalue1_1.put("variableValue", "$.mockId01[queryid][]");
+        setvalue1_1.put("type", "2");
+
+        Map<String, Object> setvalue1_2 = new HashMap<>();
+        setvalue1_2.put("globalKey", "x");
+        setvalue1_2.put("variableValue", "i am x has been changed");
+        setvalue1_2.put("type", "1");
+        variableObjList1.add(setvalue1_1);
+        variableObjList1.add(setvalue1_2);
+
+        ifConditon1.add(TaskInfo.builder().nodeType(NodeType.SET_VARIABLE_NODE).variableObjList(variableObjList1).build());//setValue
         ifConditon1.add(data_a_5);
+
 
         List<TaskInfo> elseConditon1 = new ArrayList<>();
         elseConditon1.add(data_a_6);
@@ -134,26 +150,60 @@ public class RunDynamicProcessor {
         List<TaskInfo> list2 = new ArrayList<>();
         TaskInfo condition2 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE).build();
         Map<String, Object> conditionObj2 = new HashMap<>();
-        conditionObj2.put("globalKey", "p2");
-        conditionObj2.put("conditionExpression", "==");
-        conditionObj2.put("conditionValue", "999");
+        conditionObj2.put("globalKey", "b");
+        conditionObj2.put("conditionExpression", "包含");
+        conditionObj2.put("conditionValue", "对不起");
         List<TaskInfo> ifConditon2 = new ArrayList<>();
         ifConditon2.add(data_extract_5);
+        //Set value 3
+        List<Map<String, Object>> variableObjList3 = new ArrayList<>();
+        Map<String, Object> setvalue3_1 = new HashMap<>();
+        setvalue3_1.put("globalKey", "b");
+        setvalue3_1.put("variableValue", "$.mockId02[code][]");
+        setvalue3_1.put("type", "2");
+
+        Map<String, Object> setvalue3_2 = new HashMap<>();
+        setvalue3_2.put("globalKey", "y");
+        setvalue3_2.put("variableValue", "i am y has been changed twice");
+        setvalue3_2.put("type", "1");
+        variableObjList3.add(setvalue3_1);
+        variableObjList3.add(setvalue3_2);
+
+        ifConditon2.add(TaskInfo.builder().nodeType(NodeType.SET_VARIABLE_NODE).variableObjList(variableObjList3).build());//setValue
+
+
         List<TaskInfo> elseConditon2 = new ArrayList<>();
         elseConditon2.add(data_a_7);
         condition2.setConditionObj(conditionObj2);
         condition2.setIfTaskInfos(ifConditon2);
         condition2.setElseTaskInfos(elseConditon2);
         list2.add(data_extract_4);
+        //Set value 2
+        List<Map<String, Object>> variableObjList2 = new ArrayList<>();
+        Map<String, Object> setvalue2_1 = new HashMap<>();
+        setvalue2_1.put("globalKey", "b");
+        setvalue2_1.put("variableValue", "$.mockId02[message][]");
+        setvalue2_1.put("type", "2");
+
+        Map<String, Object> setvalue2_2 = new HashMap<>();
+        setvalue2_2.put("globalKey", "y");
+        setvalue2_2.put("variableValue", "i am y has been changed");
+        setvalue2_2.put("type", "1");
+        variableObjList2.add(setvalue2_1);
+        variableObjList2.add(setvalue2_2);
+
+        list2.add(TaskInfo.builder().nodeType(NodeType.SET_VARIABLE_NODE).variableObjList(variableObjList2).build());//setValue
+
+
         list2.add(condition2);
 
 
         List<TaskInfo> list3 = new ArrayList<>();
         TaskInfo conditon3 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE).build();
         Map<String, Object> conditionObj3 = new HashMap<>();
-        conditionObj3.put("globalKey", "p3");
-        conditionObj3.put("conditionExpression", "==");
-        conditionObj3.put("conditionValue", "991");
+        conditionObj3.put("globalKey", "c");
+        conditionObj3.put("conditionExpression", ">=");
+        conditionObj3.put("conditionValue", "2999");
         conditon3.setConditionObj(conditionObj3);
         List<TaskInfo> ifConditon3 = new ArrayList<>();
         ifConditon3.add(data_a_9);
@@ -163,6 +213,22 @@ public class RunDynamicProcessor {
         conditon3.setElseTaskInfos(elseConditon3);
         list3.add(data_a_8);
         list3.add(data_extract_6);
+        //Set value 4
+        List<Map<String, Object>> variableObjList4 = new ArrayList<>();
+        Map<String, Object> setvalue4_1 = new HashMap<>();
+        setvalue4_1.put("globalKey", "c");
+        setvalue4_1.put("variableValue", "500");
+        setvalue4_1.put("type", "1");
+
+        Map<String, Object> setvalue4_2 = new HashMap<>();
+        setvalue4_2.put("globalKey", "z");
+        setvalue4_2.put("variableValue", "i am z has been changed");
+        setvalue4_2.put("type", "1");
+        variableObjList4.add(setvalue4_1);
+        variableObjList4.add(setvalue4_2);
+
+        list3.add(TaskInfo.builder().nodeType(NodeType.SET_VARIABLE_NODE).variableObjList(variableObjList4).build());//setValue
+
         list3.add(conditon3);
 
         taskInfos1.add(list1);
@@ -177,9 +243,9 @@ public class RunDynamicProcessor {
 
         TaskInfo condition4 = TaskInfo.builder().nodeType(NodeType.CONDITION_NODE).build();
         Map<String, Object> conditionObj4 = new HashMap<>();
-        conditionObj4.put("globalKey", "p4");
-        conditionObj4.put("conditionExpression", ">");
-        conditionObj4.put("conditionValue", "999");
+        conditionObj4.put("globalKey", "b");
+        conditionObj4.put("conditionExpression", "==");
+        conditionObj4.put("conditionValue", "9");
         condition4.setConditionObj(conditionObj4);
         List<TaskInfo> ifConditon4 = new ArrayList<>();
         ifConditon4.add(data_extract_9);
@@ -190,15 +256,25 @@ public class RunDynamicProcessor {
         condition4.setElseTaskInfos(elseConditon4);
 
 
+        //Init global variable
+        Map<String, Object> globalVariable = new HashMap<>();
+        globalVariable.putIfAbsent("a", "time");
+        globalVariable.putIfAbsent("b", "540");
+        globalVariable.putIfAbsent("c", "2999");
+        globalVariable.putIfAbsent("x", "i am x");
+        globalVariable.putIfAbsent("y", "i am y");
+        globalVariable.putIfAbsent("z", "i am z");
+
+        all.add(TaskInfo.builder().nodeType(NodeType.INIT_VARIABLE_NODE).globalVariable(globalVariable).build());//首先设置全局变量
         all.add(data_a_1);
         all.add(forkTask);
         all.add(data_extract_8);
         all.add(condition4);
 
-        Map<String,Task> currentFlowDynamicSetValueNodeId2ReferenceTask = new HashMap<>();
+        Map<String, Task> currentFlowDynamicSetValueNodeId2ReferenceTask = new HashMap<>();
 
         //build over
-        final List<LogicNode> logicNodes = transLogic(all,currentFlowDynamicSetValueNodeId2ReferenceTask);
+        final List<LogicNode> logicNodes = transLogic(all, currentFlowDynamicSetValueNodeId2ReferenceTask);
         //构建任务流对象
 
         String workflowId = null;
@@ -457,7 +533,7 @@ public class RunDynamicProcessor {
         TaskInfo data_a_04 = TaskInfo.builder().nodeType(NodeType.DATA_A).build();
         all.add(data_a_04);
 
-        final List<LogicNode> logicNodes = transLogic(all,null);
+        final List<LogicNode> logicNodes = transLogic(all, null);
         //构建任务流对象
 
         String workflowId = null;
@@ -499,7 +575,7 @@ public class RunDynamicProcessor {
         taskInfos.add(data_a_02);
         taskInfos.add(data_extract_02);
 
-        final List<LogicNode> logicNodes = transLogic(taskInfos,null);
+        final List<LogicNode> logicNodes = transLogic(taskInfos, null);
         //构建任务流对象
 
         String workflowId = null;
@@ -625,7 +701,7 @@ public class RunDynamicProcessor {
             return new ConditionNodeGenerator(taskInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
         }
         if (NodeType.SET_VARIABLE_NODE.equals(mircType)) {
-            return new SetValueNodeGenerator(taskInfo,currentFlowDynamicSetValueNodeId2RefernceTask);
+            return new SetValueNodeGenerator(taskInfo, currentFlowDynamicSetValueNodeId2RefernceTask);
         }
         if (NodeType.INIT_VARIABLE_NODE.equals(mircType)) {
             return new InitGlobalValueNodeGenerator(taskInfo);

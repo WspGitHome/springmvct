@@ -54,7 +54,7 @@ public class DataExtractNodeGenerator extends NodeGenerator {
         final Map<String, Object> param = nodeInfo.getParam();
         final String runbody = super.paramReplace(templateParam, param);
 
-        HttpInfo dataextractrun = HttpInfo.builder().appName(nodeInfo.getId()+STATIC_DATA_EXTRACT+STATIC_RUN+SPECIAL_PLACEHOLDER)
+        HttpInfo dataextractrun = HttpInfo.builder().appName(nodeInfo.getId()+STATIC_DATA_EXTRACT+STATIC_RUN+SPECIAL_GLOBAL_VARIABLE_CAN_SET)//TODO 还原normal
                 .url(dataExtractRunInfo.getUrl())
                 .method(dataExtractRunInfo.getMethod())
                 .accept(dataExtractRunInfo.getAccept())
