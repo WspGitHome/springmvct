@@ -43,8 +43,8 @@ public class RunDynamicProcessor {
 //        serialRun();
 //        parallelRun();
 //        testRun();//测试waitforjoin
-        serialConditonRun();
-//        parallelConditionRun();
+//        serialConditonRun();
+        parallelConditionRun();
 
         List<String> add = new ArrayList<>();
         add.add("a");
@@ -195,8 +195,10 @@ public class RunDynamicProcessor {
         all.add(data_extract_8);
         all.add(condition4);
 
+        Map<String,Task> currentFlowDynamicSetValueNodeId2ReferenceTask = new HashMap<>();
+
         //build over
-        final List<LogicNode> logicNodes = transLogic(all,null);
+        final List<LogicNode> logicNodes = transLogic(all,currentFlowDynamicSetValueNodeId2ReferenceTask);
         //构建任务流对象
 
         String workflowId = null;

@@ -37,6 +37,8 @@ public class SetValueNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
+        logger.info("当前进入set_value_Node,时间：{}", System.currentTimeMillis());
+
         List<Task> logicTaskList = new ArrayList<>();
         List<Map<String, Object>> variableObjList = nodeInfo.getVariableObjList();
         SetVariable setVariableObj = new SetVariable(getReferenceName(SET_VALUE_REFERENCE_ID));
@@ -57,14 +59,18 @@ public class SetValueNodeGenerator extends NodeGenerator {
                 }
                 final String arrayFirstValue = locationFromDynamic.get(0);
                 final Task putValueTask = currentFlowDynamicSetValueNodeId2RefernceTask.get(idFromDynamic);
-                if (arraySecondValue.isEmpty()) {
-                    final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").get(arrayFirstValue);
-                    setVariableObj.input(globalKey, getFromNodeValue);
+                if (putValueTask != null) {
+                    if (arraySecondValue.isEmpty()) {
+                        final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").get(arrayFirstValue);
+                        setVariableObj.input(globalKey, getFromNodeValue);
+                    } else {
+                        //TODO setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
+                        // list这种key需要特殊指定根据TASK referName提取任务类型 ，目前if里面支持单层jsonobj，else 目前默认写死支持分析建模结果解析
+                        final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").list(arrayFirstValue).get(arrayFirstValue, Integer.parseInt(arraySecondValue));
+                        setVariableObj.input(globalKey, getFromNodeValue);
+                    }
                 } else {
-                    //TODO setVariable.taskOutput.map("result").list("constDataSource").get("下单年份",0);
-                    // list这种key需要特殊指定根据TASK referName提取任务类型 ，目前if里面支持单层jsonobj，else 目前默认写死支持分析建模结果解析
-                    final String getFromNodeValue = putValueTask.taskOutput.map("response").map("body").list(arrayFirstValue).get(arrayFirstValue, Integer.parseInt(arraySecondValue));
-                    setVariableObj.input(globalKey, getFromNodeValue);
+                    logger.error("当前使用的输出值节点未出现在赋值节点之前，无法赋值！");
                 }
             }
 

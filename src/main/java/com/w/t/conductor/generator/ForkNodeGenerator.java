@@ -36,6 +36,7 @@ public class ForkNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
+        logger.info("当前进入fork_Node,时间：{}",System.currentTimeMillis());
         List<Task> logicTaskList = new ArrayList<>();
         if (!nodeInfo.getNodeType().equals(NodeType.JOIN_NODE)) {
             logicTaskList.add(new ForkJoin(getReferenceName("fork"), new Task[]{}));

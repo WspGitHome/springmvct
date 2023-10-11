@@ -44,6 +44,8 @@ public class DataANodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
+        logger.info("当前进入data_a_Node,时间：{}",System.currentTimeMillis());
+
         List<Task> logicTaskList = new ArrayList<>();
         //触发节点构建
         final MicroserviceDetail dataARunInfo = MicroserviceDetail.valueOf(I_RUN);

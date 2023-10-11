@@ -38,6 +38,7 @@ public class ConditionNodeGenerator extends NodeGenerator {
      */
     @Override
     public LogicNode getLogicNode() throws Exception {
+        logger.info("当前进入conditionNode,时间：{}",System.currentTimeMillis());
         List<Task> logicTaskList = new ArrayList<>();
         if (!nodeInfo.getNodeType().equals(NodeType.CONDITION_NODE)) {
             return LogicNode.builder().node(logicTaskList).build();
